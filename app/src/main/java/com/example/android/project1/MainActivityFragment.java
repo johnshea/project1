@@ -11,15 +11,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
+import kaaes.spotify.webapi.android.models.Image;
 
 
 /**
@@ -39,48 +43,8 @@ public class MainActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        String[] citiesArray = {
-                "New York",
-                "Istanbul",
-                "London",
-                "Edinburgh"
-        };
-
-        ArrayList<String> citiesArrayList = new ArrayList<>();
-
-        for(int i=0; i < 50; i++) {
-            citiesArrayList.add(i + " Some City");
-        }
-
-//        List<String> cities = new ArrayList<String>(Arrays.asList(citiesArray));
-//        List<String> cities = new ArrayList<String>(Arrays.asList(citiesArrayList));
-
-//        ArrayAdapter<String> citiesAdapter = new ArrayAdapter<String>(
-//                getActivity(),
-//                R.layout.list_item_artist,
-//                R.id.textView_artistName,
-//                citiesArrayList);
-
-        artistAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.list_item_artist,
-                R.id.textView_artistName,
-                citiesArrayList);
-
         listView = (ListView) rootView.findViewById(R.id.listview_artist);
 
-        listView.setAdapter(artistAdapter);
-
-//        ImageView iconImage = (ImageView) rootView.findViewById(R.id.imageview_icon);
-//
-//        Picasso.with(getActivity())
-//                .load("http://i.imgur.com/DvpvklR.png")
-//                .into(iconImage);
-
-//        new DownloadArtists().execute("Vedder");
-//        iconImage.setImageResource(R.drawable.arrow_pointing_right_orange_transparent);
-
-//        return inflater.inflate(R.layout.fragment_main, container, false);
         return rootView;
 
     }
@@ -127,52 +91,86 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArtistsPager results) {
-//            super.onPostExecute(aVoid);
 
-            ArrayList<String> artistsArrayList = new ArrayList<>();
+            ArrayList<LocalArtist> artistsArrayList = new ArrayList<LocalArtist>();
 
-            for(Artist a:results.artists.items) {
-                artistsArrayList.add(a.name);
+            for(Artist a : results.artists.items) {
+
+                ArrayList<LocalImage> images = new ArrayList<LocalImage>();
+
+                for(Image i : a.images) {
+                    images.add(new LocalImage(i.url, i.width, i.height));
+                }
+
+                LocalArtist oneArtist = new LocalArtist(a.id, a.name, images);
+                artistsArrayList.add(oneArtist);
             }
 
-            List<String> artists = new ArrayList<String>(artistsArrayList);
+            ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
 
-            artistAdapter.clear();
-            artistAdapter.addAll(artists);
-            artistAdapter.notifyDataSetChanged();
+            listView.setAdapter(adapter);
 
-//            ArtistAdapter artistWithImageAdapter = new ArtistAdapter(getActivity(),R.layout.list_item_artist);
-//
-//            listView.setAdapter(artistWithImageAdapter);
+        }
+    }
 
-//            artistAdapter = new ArrayAdapter<String>(
-//                    getActivity(),
-//                    R.layout.list_item_artist,
-//                    R.id.textView_artistName,
-//                    artists);
+    public class LocalImage {
+        public String url;
+        public Integer height;
+        public Integer width;
 
-//            listView = (ListView) getView().findViewById(R.id.listview_artist);
-
-//            listView.setAdapter(artistAdapter);
-
+        public LocalImage(String url, Integer width, Integer height) {
+            this.url = url;
+            this.width = width;
+            this.height = height;
         }
     }
 
     public class LocalArtist {
+        public String id;
         public String name;
         public String url;
-        public String image;
+        public ArrayList<LocalImage> artistImages;
+
+        public LocalArtist(String id, String name, ArrayList<LocalImage> artistImages) {
+            this.id = id;
+            this.name = name;
+            this.artistImages = artistImages;
+        }
     }
 
-    public class ArtistAdapter extends ArrayAdapter<LocalArtist> {
+    public class ArtistsAdapter extends ArrayAdapter<LocalArtist> {
 
-        public ArtistAdapter(Context context, int resource) {
-            super(context, resource);
+        public ArtistsAdapter(Context context, ArrayList<LocalArtist> artists) {
+            super(context, 0, artists);
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            return super.getView(position, convertView, parent);
+            LocalArtist artist = getItem(position);
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_artist, parent, false);
+            }
+
+            TextView tvArtistName = (TextView) convertView.findViewById(R.id.textView_artistName);
+            ImageView ivArtistImage = (ImageView) convertView.findViewById(R.id.imageView_artistImage);
+
+            tvArtistName.setText(artist.name);
+
+            if ( artist.artistImages.size() > 0 ) {
+                Picasso.with(getContext()).load(artist.artistImages.get(0).url)
+                        .resize(200, 200)
+                        .centerInside()
+                        .into(ivArtistImage);
+
+            } else {
+                Picasso.with(getContext()).load(R.drawable.no_album)
+                        .resize(200, 200)
+                        .centerInside()
+                        .into(ivArtistImage);
+            }
+
+            return convertView;
         }
     }
 }
