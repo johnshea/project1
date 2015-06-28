@@ -1,6 +1,7 @@
 package com.example.android.project1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -32,7 +34,21 @@ import kaaes.spotify.webapi.android.models.Image;
 public class MainActivityFragment extends Fragment {
 
     private ArrayAdapter<String> artistAdapter;
+    private ArrayList<LocalArtist> artistsArrayList;
     private ListView listView;
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+//        final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
+//
+//        String query = artistQuery.getText().toString();
+//
+//        outState.putString("artist", query);
+
+        super.onSaveInstanceState(outState);
+
+    }
 
     public MainActivityFragment() {
     }
@@ -75,6 +91,28 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                LocalArtist selectedArtist;
+
+                // TODO this should be artistAdapter.getItem..see lesson 3 - 5th lesson
+                selectedArtist = artistsArrayList.get(position);
+
+//                TextView tvArtistName = (TextView) view.findViewById(R.id.textView_artistName);
+//                String artistName = tvArtistName.getText().toString();
+//
+//                Toast.makeText(getActivity(), "You clicked on " + artistName, Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(getActivity(), TrackActivity.class);
+                intent.putExtra("id", selectedArtist.id);
+                intent.putExtra("artist", selectedArtist.name);
+                startActivity(intent);
+
+            }
+        });
+
     }
 
     public class DownloadArtists extends AsyncTask<String, Void, ArtistsPager> {
@@ -92,7 +130,7 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(ArtistsPager results) {
 
-            ArrayList<LocalArtist> artistsArrayList = new ArrayList<LocalArtist>();
+            artistsArrayList = new ArrayList<LocalArtist>();
 
             for(Artist a : results.artists.items) {
 
@@ -158,12 +196,14 @@ public class MainActivityFragment extends Fragment {
             tvArtistName.setText(artist.name);
 
             if ( artist.artistImages.size() > 0 ) {
+                Picasso.with(getContext()).setIndicatorsEnabled(true);
                 Picasso.with(getContext()).load(artist.artistImages.get(0).url)
                         .resize(200, 200)
                         .centerInside()
                         .into(ivArtistImage);
 
             } else {
+                Picasso.with(getContext()).setIndicatorsEnabled(true);
                 Picasso.with(getContext()).load(R.drawable.no_album)
                         .resize(200, 200)
                         .centerInside()
