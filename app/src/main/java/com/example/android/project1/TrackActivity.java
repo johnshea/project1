@@ -37,12 +37,7 @@ public class TrackActivity extends ActionBarActivity {
                     intent.getStringExtra("artist"));
         }
 
-
-
-
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

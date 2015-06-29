@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -39,15 +40,7 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-
-//        final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
-//
-//        String query = artistQuery.getText().toString();
-//
-//        outState.putString("artist", query);
-
         super.onSaveInstanceState(outState);
-
     }
 
     public MainActivityFragment() {
@@ -87,6 +80,12 @@ public class MainActivityFragment extends Fragment {
                 String query = artistQuery.getText().toString();
                 if ( !query.isEmpty() ) {
                     new DownloadArtists().execute(query);
+                } else {
+
+                    artistsArrayList.clear();
+                    ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
+
+                    listView.setAdapter(adapter);
                 }
             }
         });
@@ -148,6 +147,10 @@ public class MainActivityFragment extends Fragment {
 
             listView.setAdapter(adapter);
 
+            if ( artistsArrayList.size() == 0 ) {
+                Toast.makeText(getActivity(), getString(R.string.message_no_artists_found), Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
@@ -196,14 +199,14 @@ public class MainActivityFragment extends Fragment {
             tvArtistName.setText(artist.name);
 
             if ( artist.artistImages.size() > 0 ) {
-                Picasso.with(getContext()).setIndicatorsEnabled(true);
+//                Picasso.with(getContext()).setIndicatorsEnabled(true);
                 Picasso.with(getContext()).load(artist.artistImages.get(0).url)
                         .resize(200, 200)
                         .centerInside()
                         .into(ivArtistImage);
 
             } else {
-                Picasso.with(getContext()).setIndicatorsEnabled(true);
+//                Picasso.with(getContext()).setIndicatorsEnabled(true);
                 Picasso.with(getContext()).load(R.drawable.no_album)
                         .resize(200, 200)
                         .centerInside()

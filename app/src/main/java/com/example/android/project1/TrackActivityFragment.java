@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -180,7 +181,6 @@ public class TrackActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Tracks results) {
-//            super.onPostExecute(Tracks);
 
             tracksArrayList = new ArrayList<LocalTrack>();
 
@@ -199,6 +199,10 @@ public class TrackActivityFragment extends Fragment {
             TracksAdapter tracksAdapter = new TracksAdapter(getActivity(), tracksArrayList);
 
             tracksListView.setAdapter(tracksAdapter);
+
+            if ( tracksArrayList.size() == 0 ) {
+                Toast.makeText(getActivity(), getString(R.string.message_no_top_10_tracks), Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override
