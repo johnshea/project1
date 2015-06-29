@@ -209,7 +209,6 @@ public class MainActivityFragment extends Fragment {
             TextView tvArtistName = viewHolder.textViewArtistName;
             ImageView ivArtistImage = viewHolder.imageViewArtistImage;
 
-
             tvArtistName.setText(artist.name);
 
             if ( artist.artistImages.size() > 0 ) {

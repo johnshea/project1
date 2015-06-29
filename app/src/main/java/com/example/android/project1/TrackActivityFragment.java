@@ -99,6 +99,12 @@ public class TrackActivityFragment extends Fragment {
         return rootView;
     }
 
+    static class ViewHolder {
+        TextView textViewAlbumName;
+        TextView textViewTrackName;
+        ImageView imageViewAlbumImage;
+    }
+
     public class TracksAdapter extends ArrayAdapter<LocalTrack> {
 
         public TracksAdapter(Context context, ArrayList<LocalTrack> tracks) {
@@ -111,11 +117,20 @@ public class TrackActivityFragment extends Fragment {
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_track, parent, false);
+
+                ViewHolder viewHolder = new ViewHolder();
+                viewHolder.textViewAlbumName = (TextView) convertView.findViewById(R.id.textView_albumName);
+                viewHolder.textViewTrackName = (TextView) convertView.findViewById(R.id.textView_trackName);
+                viewHolder.imageViewAlbumImage = (ImageView) convertView.findViewById(R.id.imageView_albumImage);
+
+                convertView.setTag(viewHolder);
             }
 
-            TextView tvAlbumName = (TextView) convertView.findViewById(R.id.textView_albumName);
-            TextView tvTrackName = (TextView) convertView.findViewById(R.id.textView_trackName);
-            ImageView ivAlbumImage = (ImageView) convertView.findViewById(R.id.imageView_albumImage);
+            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
+
+            TextView tvAlbumName = viewHolder.textViewAlbumName;
+            TextView tvTrackName = viewHolder.textViewTrackName;
+            ImageView ivAlbumImage = viewHolder.imageViewAlbumImage;
 
             tvAlbumName.setText(localTrack.albumName);
             tvTrackName.setText(localTrack.trackName);
