@@ -97,7 +97,7 @@ public class MainActivityFragment extends Fragment {
 
                 LocalArtist selectedArtist;
 
-                // TODO this should be artistAdapter.getItem..see lesson 3 - 5th lesson
+                // TODO this should be artistAdapter.getItem..see lesson 3 - 5th session
                 selectedArtist = artistsArrayList.get(position);
 
 //                TextView tvArtistName = (TextView) view.findViewById(R.id.textView_artistName);

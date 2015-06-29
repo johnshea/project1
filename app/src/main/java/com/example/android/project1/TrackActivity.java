@@ -2,12 +2,16 @@ package com.example.android.project1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
 public class TrackActivity extends ActionBarActivity {
+
+    private TrackActivityFragment tracksActivityFragment;
 
     private String id;
     private String artist;
@@ -17,11 +21,25 @@ public class TrackActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track);
 
-        Intent intent = getIntent();
+        FragmentManager fm = getSupportFragmentManager();
+        tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
 
-        // TODO Add error checking in case it is not populated
-        id = intent.getStringExtra("id");
-        artist = intent.getStringExtra("artist");
+        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+        if ( tracksActivityFragment == null ) {
+            tracksActivityFragment = new TrackActivityFragment();
+            fragmentTransaction.add(R.id.fragment_container, tracksActivityFragment, "track");
+            fragmentTransaction.commit();
+            // TODO Add error checking in case it is not populated
+
+            Intent intent = getIntent();
+            tracksActivityFragment.setValues(intent.getStringExtra("id"),
+                    intent.getStringExtra("artist"));
+        }
+
+
+
+
 
     }
 

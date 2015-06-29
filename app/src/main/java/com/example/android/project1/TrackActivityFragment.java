@@ -1,7 +1,6 @@
 package com.example.android.project1;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,13 +36,21 @@ public class TrackActivityFragment extends Fragment {
     private ArrayAdapter<Tracks> tracksAdapter;
 
     private String id;
+    private String artist;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        new DownloadTracks().execute(id);
-    }
 
+        if ( tracksArrayList == null ){
+            new DownloadTracks().execute(id);
+        } else {
+            TracksAdapter tracksAdapter = new TracksAdapter(getActivity(), tracksArrayList);
+
+            tracksListView.setAdapter(tracksAdapter);
+        }
+
+    }
 
     public TrackActivityFragment() {
     }
@@ -52,12 +59,21 @@ public class TrackActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-//        if ( actionBar != null ) {
-//            actionBar.setSubtitle("Hello world!");
-//        }
+        setRetainInstance(true);
     }
 
+    public void setData(ArrayList<LocalTrack> data) {
+        this.tracksArrayList = data;
+    }
+
+    public void setValues(String id, String artist) {
+        this.id = id;
+        this.artist = artist;
+    }
+
+    public ArrayList<LocalTrack> getData() {
+        return this.tracksArrayList;
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -66,11 +82,11 @@ public class TrackActivityFragment extends Fragment {
 
         tracksListView = (ListView) rootView.findViewById(R.id.listview_tracks);
 
-        Intent intent = getActivity().getIntent();
-
-        // TODO Add error checking in case it is not populated
-        id = intent.getStringExtra("id");
-        String artist = intent.getStringExtra("artist");
+//        Intent intent = getActivity().getIntent();
+//
+//        // TODO Add error checking in case it is not populated
+//        id = intent.getStringExtra("id");
+//        String artist = intent.getStringExtra("artist");
 
 
         //TODO Need to add second line to action bar with artist's name
