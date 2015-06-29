@@ -124,6 +124,7 @@ public class TrackActivityFragment extends Fragment {
                 Picasso.with(getContext()).load(localTrack.albumImages.get(0).url)
                         .resize(200, 200)
                         .centerInside()
+                        .placeholder(R.drawable.icon_square)
                         .into(ivAlbumImage);
 
             } else {

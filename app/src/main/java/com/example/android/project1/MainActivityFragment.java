@@ -179,6 +179,11 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    static class ViewHolder {
+        TextView textViewArtistName;
+        ImageView imageViewArtistImage;
+    }
+
     public class ArtistsAdapter extends ArrayAdapter<LocalArtist> {
 
         public ArtistsAdapter(Context context, ArrayList<LocalArtist> artists) {
@@ -191,10 +196,19 @@ public class MainActivityFragment extends Fragment {
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_artist, parent, false);
+
+                ViewHolder viewHolder = new ViewHolder();
+                viewHolder.textViewArtistName = (TextView) convertView.findViewById(R.id.textView_artistName);
+                viewHolder.imageViewArtistImage = (ImageView) convertView.findViewById(R.id.imageView_artistImage);
+
+                convertView.setTag(viewHolder);
             }
 
-            TextView tvArtistName = (TextView) convertView.findViewById(R.id.textView_artistName);
-            ImageView ivArtistImage = (ImageView) convertView.findViewById(R.id.imageView_artistImage);
+            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
+
+            TextView tvArtistName = viewHolder.textViewArtistName;
+            ImageView ivArtistImage = viewHolder.imageViewArtistImage;
+
 
             tvArtistName.setText(artist.name);
 
@@ -203,6 +217,7 @@ public class MainActivityFragment extends Fragment {
                 Picasso.with(getContext()).load(artist.artistImages.get(0).url)
                         .resize(200, 200)
                         .centerInside()
+                        .placeholder(R.drawable.icon_square)
                         .into(ivArtistImage);
 
             } else {
