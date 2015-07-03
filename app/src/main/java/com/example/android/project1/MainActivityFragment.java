@@ -62,6 +62,8 @@ public class MainActivityFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        artistsArrayList = new ArrayList<LocalArtist>();
+
         final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
 
         artistQuery.addTextChangedListener(new TextWatcher() {
@@ -154,6 +156,7 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+
     public class LocalImage {
         public String url;
         public Integer height;
@@ -219,12 +222,25 @@ public class MainActivityFragment extends Fragment {
                         .placeholder(R.drawable.icon_square)
                         .into(ivArtistImage);
 
+                ArtistLinearLayout linearLayout = (ArtistLinearLayout) convertView.findViewById(R.id.artistlinearlayout);
+
+                Picasso.with(getContext()).load(artist.artistImages.get(0).url)
+                        .into(linearLayout);
+
             } else {
 //                Picasso.with(getContext()).setIndicatorsEnabled(true);
                 Picasso.with(getContext()).load(R.drawable.no_album)
                         .resize(200, 200)
                         .centerInside()
                         .into(ivArtistImage);
+
+                ArtistLinearLayout linearLayout = (ArtistLinearLayout) convertView.findViewById(R.id.artistlinearlayout);
+
+                Picasso.with(getContext()).load(R.drawable.no_album)
+                        .into(linearLayout);
+
+
+
             }
 
             return convertView;
