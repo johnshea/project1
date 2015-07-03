@@ -109,6 +109,7 @@ public class MainActivityFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), TrackActivity.class);
                 intent.putExtra("id", selectedArtist.id);
                 intent.putExtra("artist", selectedArtist.name);
+                intent.putExtra("image", selectedArtist.getLargestImageUrl());
                 startActivity(intent);
 
             }
@@ -126,7 +127,9 @@ public class MainActivityFragment extends Fragment {
             try {
                 SpotifyApi api = new SpotifyApi();
                 SpotifyService spotify = api.getService();
-                results = spotify.searchArtists(params[0]);
+                if ( params[0] != null && !params[0].equals("") ) {
+                    results = spotify.searchArtists(params[0]);
+                }
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
             }
@@ -139,24 +142,38 @@ public class MainActivityFragment extends Fragment {
 
             artistsArrayList = new ArrayList<LocalArtist>();
 
-            for(Artist a : results.artists.items) {
+            if ( results != null) {
 
-                ArrayList<LocalImage> images = new ArrayList<LocalImage>();
+                for(Artist a : results.artists.items) {
 
-                for(Image i : a.images) {
-                    images.add(new LocalImage(i.url, i.width, i.height));
+                    ArrayList<LocalImage> images = new ArrayList<LocalImage>();
+
+                    for(Image i : a.images) {
+                        images.add(new LocalImage(i.url, i.width, i.height));
+                    }
+
+                    LocalArtist oneArtist = new LocalArtist(a.id, a.name, images);
+                    artistsArrayList.add(oneArtist);
                 }
 
-                LocalArtist oneArtist = new LocalArtist(a.id, a.name, images);
-                artistsArrayList.add(oneArtist);
             }
 
-            ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
+            if ( getActivity() != null ) {
 
-            listView.setAdapter(adapter);
+                final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
 
-            if ( artistsArrayList.size() == 0 ) {
-                Toast.makeText(getActivity(), getString(R.string.message_no_artists_found), Toast.LENGTH_SHORT).show();
+                if ( !artistQuery.getText().toString().equals("") ) {
+                    ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
+                    listView.setAdapter(adapter);
+                } else {
+                    listView.setAdapter(null);
+                }
+                
+                if ( artistsArrayList.size() == 0 ) {
+                    Toast.makeText(getActivity(), getString(R.string.message_no_artists_found),
+                            Toast.LENGTH_SHORT).show();
+                }
+
             }
 
         }

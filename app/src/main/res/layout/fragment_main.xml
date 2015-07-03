@@ -18,13 +18,15 @@
                 android:id="@+id/edittext_artist_query"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textNoSuggestions"
                 android:hint="Enter Artist to Search"/>
         </TableRow>
         <TableRow>
             <ListView
                 android:id="@+id/listview_artist"
                 android:layout_width="match_parent"
-                android:layout_height="400dp" />
+                android:layout_height="match_parent"
+                android:minHeight="?android:listPreferredItemHeight"/>
         </TableRow>
     </TableLayout>
 

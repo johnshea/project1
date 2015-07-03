@@ -8,6 +8,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.squareup.picasso.Picasso;
+
 
 public class TrackActivity extends ActionBarActivity {
 
@@ -30,15 +32,21 @@ public class TrackActivity extends ActionBarActivity {
             tracksActivityFragment = new TrackActivityFragment();
             fragmentTransaction.add(R.id.fragment_container, tracksActivityFragment, "track");
             fragmentTransaction.commit();
+            }
 
-            Intent intent = getIntent();
+        Intent intent = getIntent();
 
-            if ( intent != null ) {
-                String id = intent.getStringExtra("id");
-                String artist = intent.getStringExtra("artist");
-                if ( id != null && artist != null ) {
-                    tracksActivityFragment.setValues(id, artist);
-                }
+        if ( intent != null ) {
+            String id = intent.getStringExtra("id");
+            String artist = intent.getStringExtra("artist");
+            String imageUrl = intent.getStringExtra("image");
+            if ( id != null && artist != null ) {
+                tracksActivityFragment.setValues(id, artist);
+                TrackFrameLayout trackFrameLayout = (TrackFrameLayout)findViewById(R.id.fragment_container);
+
+                Picasso.with(this).load(imageUrl)
+                        .into(trackFrameLayout);
+
             }
 
         }
