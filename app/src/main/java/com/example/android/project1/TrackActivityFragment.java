@@ -15,6 +15,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.project1.models.LocalTrack;
+import com.example.android.project1.models.LocalTrackImage;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -136,7 +138,7 @@ public class TrackActivityFragment extends Fragment {
             tvTrackName.setText(localTrack.trackName);
 
             if ( localTrack.albumImages.size() > 0 ) {
-                Picasso.with(getContext()).load(localTrack.albumImages.get(0).url)
+                Picasso.with(getContext()).load(localTrack.getThumbnailUrl())
                         .resize(200, 200)
                         .centerInside()
                         .placeholder(R.drawable.icon_square)
@@ -152,32 +154,6 @@ public class TrackActivityFragment extends Fragment {
             return convertView;
         }
 
-    }
-
-    public class LocalTrack {
-        public String albumName;
-        public String trackName;
-        public ArrayList<LocalTrackImage> albumImages;
-        public String preview_url;
-
-        public LocalTrack(String albumName, String trackName, ArrayList<LocalTrackImage> albumImages, String preview_url) {
-            this.albumName = albumName;
-            this.trackName = trackName;
-            this.albumImages = albumImages;
-            this.preview_url = preview_url;
-        }
-    }
-
-    public class LocalTrackImage {
-        public String url;
-        public Integer height;
-        public Integer width;
-
-        public LocalTrackImage(String url, Integer width, Integer height) {
-            this.url = url;
-            this.width = width;
-            this.height = height;
-        }
     }
 
     public class DownloadTracks extends AsyncTask<String, Void, Tracks> {

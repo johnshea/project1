@@ -18,6 +18,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.project1.models.LocalArtist;
+import com.example.android.project1.models.LocalImage;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -156,33 +158,8 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
-
-    public class LocalImage {
-        public String url;
-        public Integer height;
-        public Integer width;
-
-        public LocalImage(String url, Integer width, Integer height) {
-            this.url = url;
-            this.width = width;
-            this.height = height;
-        }
-    }
-
-    public class LocalArtist {
-        public String id;
-        public String name;
-        public String url;
-        public ArrayList<LocalImage> artistImages;
-
-        public LocalArtist(String id, String name, ArrayList<LocalImage> artistImages) {
-            this.id = id;
-            this.name = name;
-            this.artistImages = artistImages;
-        }
-    }
-
     static class ViewHolder {
+        ArtistLinearLayout artistLinearLayout;
         TextView textViewArtistName;
         ImageView imageViewArtistImage;
     }
@@ -195,12 +172,14 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+
             LocalArtist artist = getItem(position);
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_artist, parent, false);
 
                 ViewHolder viewHolder = new ViewHolder();
+                viewHolder.artistLinearLayout = (ArtistLinearLayout) convertView.findViewById(R.id.artistlinearlayout);
                 viewHolder.textViewArtistName = (TextView) convertView.findViewById(R.id.textView_artistName);
                 viewHolder.imageViewArtistImage = (ImageView) convertView.findViewById(R.id.imageView_artistImage);
 
@@ -211,21 +190,20 @@ public class MainActivityFragment extends Fragment {
 
             TextView tvArtistName = viewHolder.textViewArtistName;
             ImageView ivArtistImage = viewHolder.imageViewArtistImage;
+            ArtistLinearLayout artistLinearLayout = viewHolder.artistLinearLayout;
 
             tvArtistName.setText(artist.name);
 
             if ( artist.artistImages.size() > 0 ) {
 //                Picasso.with(getContext()).setIndicatorsEnabled(true);
-                Picasso.with(getContext()).load(artist.artistImages.get(0).url)
+                Picasso.with(getContext()).load(artist.getThumbnailUrl())
                         .resize(200, 200)
                         .centerInside()
                         .placeholder(R.drawable.icon_square)
                         .into(ivArtistImage);
 
-                ArtistLinearLayout linearLayout = (ArtistLinearLayout) convertView.findViewById(R.id.artistlinearlayout);
-
-                Picasso.with(getContext()).load(artist.artistImages.get(0).url)
-                        .into(linearLayout);
+                Picasso.with(getContext()).load(artist.getThumbnailUrl())
+                        .into(artistLinearLayout);
 
             } else {
 //                Picasso.with(getContext()).setIndicatorsEnabled(true);
@@ -234,12 +212,8 @@ public class MainActivityFragment extends Fragment {
                         .centerInside()
                         .into(ivArtistImage);
 
-                ArtistLinearLayout linearLayout = (ArtistLinearLayout) convertView.findViewById(R.id.artistlinearlayout);
-
                 Picasso.with(getContext()).load(R.drawable.no_album)
-                        .into(linearLayout);
-
-
+                        .into(artistLinearLayout);
 
             }
 
