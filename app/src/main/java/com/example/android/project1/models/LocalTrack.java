@@ -8,13 +8,13 @@ import java.util.ArrayList;
 public class LocalTrack {
     public String albumName;
     public String trackName;
-    public ArrayList<LocalTrackImage> albumImages;
+    public ArrayList<LocalImage> albumImages;
     public String preview_url;
 
     private Integer smallestImageIndex;
     private Integer largestImageIndex;
 
-    public LocalTrack(String albumName, String trackName, ArrayList<LocalTrackImage> albumImages, String preview_url) {
+    public LocalTrack(String albumName, String trackName, ArrayList<LocalImage> albumImages, String preview_url) {
         this.albumName = albumName;
         this.trackName = trackName;
         this.albumImages = albumImages;
@@ -41,7 +41,7 @@ public class LocalTrack {
 
             for(int i = 0; i < this.albumImages.size(); i++) {
 
-                LocalTrackImage currentImage = this.albumImages.get(i);
+                LocalImage currentImage = this.albumImages.get(i);
 
                 // Determine smallest image
                 if ( currentImage.width < currentSmallestWidth ) {

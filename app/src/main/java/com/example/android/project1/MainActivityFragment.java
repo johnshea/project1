@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,8 @@ import kaaes.spotify.webapi.android.models.Image;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
+
+    private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
     private ArrayAdapter<String> artistAdapter;
     private ArrayList<LocalArtist> artistsArrayList;
@@ -103,11 +106,6 @@ public class MainActivityFragment extends Fragment {
                 // TODO this should be artistAdapter.getItem..see lesson 3 - 5th session
                 selectedArtist = artistsArrayList.get(position);
 
-//                TextView tvArtistName = (TextView) view.findViewById(R.id.textView_artistName);
-//                String artistName = tvArtistName.getText().toString();
-//
-//                Toast.makeText(getActivity(), "You clicked on " + artistName, Toast.LENGTH_SHORT).show();
-
                 Intent intent = new Intent(getActivity(), TrackActivity.class);
                 intent.putExtra("id", selectedArtist.id);
                 intent.putExtra("artist", selectedArtist.name);
@@ -123,9 +121,15 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected ArtistsPager doInBackground(String... params) {
 
-            SpotifyApi api = new SpotifyApi();
-            SpotifyService spotify = api.getService();
-            ArtistsPager results = spotify.searchArtists(params[0]);
+            ArtistsPager results = null;
+
+            try {
+                SpotifyApi api = new SpotifyApi();
+                SpotifyService spotify = api.getService();
+                results = spotify.searchArtists(params[0]);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
+            }
 
             return results;
         }

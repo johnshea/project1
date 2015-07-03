@@ -30,11 +30,17 @@ public class TrackActivity extends ActionBarActivity {
             tracksActivityFragment = new TrackActivityFragment();
             fragmentTransaction.add(R.id.fragment_container, tracksActivityFragment, "track");
             fragmentTransaction.commit();
-            // TODO Add error checking in case it is not populated
 
             Intent intent = getIntent();
-            tracksActivityFragment.setValues(intent.getStringExtra("id"),
-                    intent.getStringExtra("artist"));
+
+            if ( intent != null ) {
+                String id = intent.getStringExtra("id");
+                String artist = intent.getStringExtra("artist");
+                if ( id != null && artist != null ) {
+                    tracksActivityFragment.setValues(id, artist);
+                }
+            }
+
         }
 
     }

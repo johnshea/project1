@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.project1.models.LocalImage;
 import com.example.android.project1.models.LocalTrack;
-import com.example.android.project1.models.LocalTrackImage;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ import kaaes.spotify.webapi.android.models.Tracks;
  * A placeholder fragment containing a simple view.
  */
 public class TrackActivityFragment extends Fragment {
+
+    private final String LOG_TAG = TrackActivityFragment.class.getSimpleName();
 
     private ListView tracksListView;
     private ArrayList<LocalTrack> tracksArrayList;
@@ -77,6 +80,7 @@ public class TrackActivityFragment extends Fragment {
     public ArrayList<LocalTrack> getData() {
         return this.tracksArrayList;
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,14 +89,6 @@ public class TrackActivityFragment extends Fragment {
 
         tracksListView = (ListView) rootView.findViewById(R.id.listview_tracks);
 
-//        Intent intent = getActivity().getIntent();
-//
-//        // TODO Add error checking in case it is not populated
-//        id = intent.getStringExtra("id");
-//        String artist = intent.getStringExtra("artist");
-
-
-        //TODO Need to add second line to action bar with artist's name
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         if ( actionBar != null ) {
             actionBar.setSubtitle(artist);
@@ -161,12 +157,18 @@ public class TrackActivityFragment extends Fragment {
         protected Tracks doInBackground(String... params) {
             String artistId = params[0];
 
-            SpotifyApi api = new SpotifyApi();
-            SpotifyService spotify = api.getService();
             HashMap<String, Object> optionsMap = new HashMap<>();
             optionsMap.put("country", "US");
 
-            Tracks results = spotify.getArtistTopTrack(artistId, optionsMap);
+            Tracks results = null;
+
+            try {
+                SpotifyApi api = new SpotifyApi();
+                SpotifyService spotify = api.getService();
+                results = spotify.getArtistTopTrack(artistId, optionsMap);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
+            }
 
             return results;
         }
@@ -178,10 +180,10 @@ public class TrackActivityFragment extends Fragment {
 
             for(Track track : results.tracks) {
 
-                ArrayList<LocalTrackImage> images = new ArrayList<LocalTrackImage>();
+                ArrayList<LocalImage> images = new ArrayList<LocalImage>();
 
                 for(Image i : track.album.images) {
-                    images.add(new LocalTrackImage(i.url, i.width, i.height));
+                    images.add(new LocalImage(i.url, i.width, i.height));
                 }
 
                 LocalTrack localTrack = new LocalTrack(track.album.name, track.name, images, track.preview_url);
