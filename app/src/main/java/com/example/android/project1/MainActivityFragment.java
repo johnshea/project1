@@ -168,7 +168,7 @@ public class MainActivityFragment extends Fragment {
                 } else {
                     listView.setAdapter(null);
                 }
-                
+
                 if ( artistsArrayList.size() == 0 ) {
                     Toast.makeText(getActivity(), getString(R.string.message_no_artists_found),
                             Toast.LENGTH_SHORT).show();

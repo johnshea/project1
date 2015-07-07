@@ -162,9 +162,10 @@ public class TrackActivityFragment extends Fragment {
 
             Tracks results = null;
 
+            SpotifyApi api = new SpotifyApi();
+            SpotifyService spotify = api.getService();
+
             try {
-                SpotifyApi api = new SpotifyApi();
-                SpotifyService spotify = api.getService();
                 results = spotify.getArtistTopTrack(artistId, optionsMap);
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
