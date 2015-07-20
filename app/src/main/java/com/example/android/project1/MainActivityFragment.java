@@ -1,7 +1,7 @@
 package com.example.android.project1;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,15 +37,35 @@ import kaaes.spotify.webapi.android.models.Image;
  */
 public class MainActivityFragment extends Fragment {
 
+    private OnArtistSelectedListener mCallback;
+
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
     private ArrayAdapter<String> artistAdapter;
     private ArrayList<LocalArtist> artistsArrayList;
     private ListView listView;
 
+    public interface OnArtistSelectedListener {
+        public void onArtistSelected(LocalArtist localArtist);
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnArtistSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnArtistSelectedListener");
+        }
     }
 
     public MainActivityFragment() {
@@ -106,11 +126,7 @@ public class MainActivityFragment extends Fragment {
                 // TODO this should be artistAdapter.getItem..see lesson 3 - 5th session
                 selectedArtist = artistsArrayList.get(position);
 
-                Intent intent = new Intent(getActivity(), TrackActivity.class);
-                intent.putExtra("id", selectedArtist.id);
-                intent.putExtra("artist", selectedArtist.name);
-                intent.putExtra("image", selectedArtist.getLargestImageUrl());
-                startActivity(intent);
+                mCallback.onArtistSelected(selectedArtist);
 
             }
         });

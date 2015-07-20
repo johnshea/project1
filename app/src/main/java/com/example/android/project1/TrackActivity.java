@@ -30,7 +30,7 @@ public class TrackActivity extends ActionBarActivity {
 
         if ( tracksActivityFragment == null ) {
             tracksActivityFragment = new TrackActivityFragment();
-            fragmentTransaction.add(R.id.fragment_container, tracksActivityFragment, "track");
+            fragmentTransaction.add(R.id.track_list_container, tracksActivityFragment, "track");
             fragmentTransaction.commit();
             }
 
@@ -42,10 +42,12 @@ public class TrackActivity extends ActionBarActivity {
             String imageUrl = intent.getStringExtra("image");
             if ( id != null && artist != null ) {
                 tracksActivityFragment.setValues(id, artist);
-                TrackFrameLayout trackFrameLayout = (TrackFrameLayout)findViewById(R.id.fragment_container);
+                TrackFrameLayout trackFrameLayout = (TrackFrameLayout)findViewById(R.id.track_list_container);
 
-                Picasso.with(this).load(imageUrl)
-                        .into(trackFrameLayout);
+                if ( !imageUrl.equals("") ) {
+                    Picasso.with(this).load(imageUrl)
+                            .into(trackFrameLayout);
+                }
 
             }
 

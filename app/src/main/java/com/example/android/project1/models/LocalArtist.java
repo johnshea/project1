@@ -63,7 +63,6 @@ public class LocalArtist {
             largestImageIndex = currentLargestIndex;
         }
 
-
     }
 
     public String getThumbnailUrl() {
@@ -71,7 +70,15 @@ public class LocalArtist {
     }
 
     public String getLargestImageUrl() {
-        return this.artistImages.get(largestImageIndex).url;
+        String url = "";
+
+        if (artistImages.size() == 0) {
+            url = "";
+        } else {
+            url =  this.artistImages.get(largestImageIndex).url;
+        }
+
+        return url;
     }
 
 }

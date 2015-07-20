@@ -73,8 +73,22 @@ public class TrackActivityFragment extends Fragment {
     }
 
     public void setValues(String id, String artist) {
+
+        Boolean artistIdChanged = false;
+
+        if ( this.id != id ) {
+            artistIdChanged = true;
+        } else {
+            artistIdChanged = false;
+        }
+
         this.id = id;
         this.artist = artist;
+
+        if ( artistIdChanged ) {
+            new DownloadTracks().execute(id);
+        }
+
     }
 
     public ArrayList<LocalTrack> getData() {

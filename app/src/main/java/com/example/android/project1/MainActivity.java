@@ -1,17 +1,85 @@
 package com.example.android.project1;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.android.project1.models.LocalArtist;
+import com.squareup.picasso.Picasso;
 
-public class MainActivity extends ActionBarActivity {
+
+public class MainActivity extends ActionBarActivity
+        implements MainActivityFragment.OnArtistSelectedListener {
+
+    private boolean mDualPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (findViewById(R.id.track_list_container) != null) {
+            mDualPane = true;
+        } else {
+            mDualPane = false;
+        }
+    }
+
+    public void onArtistSelected(LocalArtist localArtist) {
+
+        if (mDualPane) {
+
+            ActionBar actionBar = this.getSupportActionBar();
+            if ( actionBar != null ) {
+                actionBar.setSubtitle(localArtist.name);
+            }
+
+            TrackActivityFragment tracksActivityFragment;
+
+            FragmentManager fm = getSupportFragmentManager();
+            tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
+
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+            if ( tracksActivityFragment == null ) {
+                tracksActivityFragment = new TrackActivityFragment();
+                fragmentTransaction.add(R.id.track_list_container, tracksActivityFragment, "track");
+                fragmentTransaction.commit();
+            }
+
+            String id = localArtist.id;
+            String artist = localArtist.name;
+
+            if ( id != null && artist != null ) {
+                tracksActivityFragment.setValues(id, artist);
+                TrackFrameLayout trackFrameLayout = (TrackFrameLayout) findViewById(R.id.track_list_container);
+
+                if (localArtist.artistImages.size() > 0) {
+                    String imageUrl = localArtist.getThumbnailUrl();
+                    Picasso.with(this).load(imageUrl)
+                            .into(trackFrameLayout);
+
+                } else {
+                    Picasso.with(this).load(R.drawable.no_album)
+                            .into(trackFrameLayout);
+                }
+
+            }
+        } else {
+
+            Intent intent = new Intent(this, TrackActivity.class);
+            intent.putExtra("id", localArtist.id);
+            intent.putExtra("artist", localArtist.name);
+            intent.putExtra("image", localArtist.getLargestImageUrl());
+
+            startActivity(intent);
+
+        }
     }
 
     @Override
