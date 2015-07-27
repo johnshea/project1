@@ -11,8 +11,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,7 +22,11 @@
         <activity
             android:name=".TrackActivity"
             android:label="@string/title_activity_track"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".TrackPlayerActivity"
+            android:label="@string/title_activity_track_player" >
         </activity>
     </application>
 

@@ -1,6 +1,7 @@
 package com.example.android.project1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -102,6 +104,14 @@ public class TrackActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_track, container, false);
 
         tracksListView = (ListView) rootView.findViewById(R.id.listview_tracks);
+
+        tracksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
+                startActivity(intent);
+            }
+        });
 
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         if ( actionBar != null ) {

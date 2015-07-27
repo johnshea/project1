@@ -6,4 +6,6 @@
     <string name="message_no_top_10_tracks">Selected artist does not have any Top 10 Tracks.</string>
     <string name="message_no_artists_found">No artists found that match your search.</string>
     <string name="artist_search_prompt">Enter Artist to Search</string>
+    <string name="title_activity_track_player">TrackPlayerActivity</string>
+    <string name="hello_world">Hello world!</string>
 </resources>
