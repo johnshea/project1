@@ -8,13 +8,20 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.android.project1.models.LocalArtist;
+import com.example.android.project1.models.LocalTrack;
 import com.squareup.picasso.Picasso;
 
 
 public class MainActivity extends ActionBarActivity
-        implements MainActivityFragment.OnArtistSelectedListener {
+        implements MainActivityFragment.OnArtistSelectedListener, TrackActivityFragment.OnTrackSelectedListener {
+
+    @Override
+    public void OnTrackSelectedListener(LocalTrack localTrack) {
+        Toast.makeText(this, "(MainActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
+    }
 
     private boolean mDualPane;
 

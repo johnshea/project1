@@ -7,11 +7,20 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.example.android.project1.models.LocalTrack;
 import com.squareup.picasso.Picasso;
 
 
-public class TrackActivity extends ActionBarActivity {
+public class TrackActivity extends ActionBarActivity implements TrackActivityFragment.OnTrackSelectedListener {
+
+    private TrackActivityFragment.OnTrackSelectedListener mCallback;
+
+    @Override
+    public void OnTrackSelectedListener(LocalTrack localTrack) {
+        Toast.makeText(this, "(TrackActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
+    }
 
     private TrackActivityFragment tracksActivityFragment;
 

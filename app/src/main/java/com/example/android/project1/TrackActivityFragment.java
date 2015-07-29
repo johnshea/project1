@@ -1,7 +1,7 @@
 package com.example.android.project1;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,6 +37,8 @@ import kaaes.spotify.webapi.android.models.Tracks;
  */
 public class TrackActivityFragment extends Fragment {
 
+    private OnTrackSelectedListener mCallback;
+
     private final String LOG_TAG = TrackActivityFragment.class.getSimpleName();
 
     private ListView tracksListView;
@@ -45,6 +47,24 @@ public class TrackActivityFragment extends Fragment {
 
     private String id;
     private String artist;
+
+    public interface OnTrackSelectedListener {
+        public void OnTrackSelectedListener(LocalTrack localTrack);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnTrackSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnTrackSelectedListener");
+        }
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -108,8 +128,9 @@ public class TrackActivityFragment extends Fragment {
         tracksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
+//                startActivity(intent);
+                mCallback.OnTrackSelectedListener(tracksArrayList.get(position));
             }
         });
 
