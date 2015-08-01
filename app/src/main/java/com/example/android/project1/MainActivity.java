@@ -8,7 +8,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.android.project1.models.LocalArtist;
 import com.example.android.project1.models.LocalTrack;
@@ -16,11 +15,23 @@ import com.squareup.picasso.Picasso;
 
 
 public class MainActivity extends ActionBarActivity
-        implements MainActivityFragment.OnArtistSelectedListener, TrackActivityFragment.OnTrackSelectedListener {
+        implements MainActivityFragment.OnArtistSelectedListener, TrackActivityFragment.OnTrackSelectedListener
+        , TrackPlayerActivityFragment.TrackPlayerActivityListener {
+
+    private String mArtistName;
 
     @Override
     public void OnTrackSelectedListener(LocalTrack localTrack) {
-        Toast.makeText(this, "(MainActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "(MainActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+
+        trackPlayerActivityFragment.setValues(mArtistName, localTrack);
+
+        if( mDualPane ) {
+            trackPlayerActivityFragment.show(fragmentManager, "dialog");
+        }
     }
 
     private boolean mDualPane;
@@ -60,10 +71,10 @@ public class MainActivity extends ActionBarActivity
             }
 
             String id = localArtist.id;
-            String artist = localArtist.name;
+            mArtistName = localArtist.name;
 
-            if ( id != null && artist != null ) {
-                tracksActivityFragment.setValues(id, artist);
+            if ( id != null && mArtistName != null ) {
+                tracksActivityFragment.setValues(id, mArtistName);
                 TrackFrameLayout trackFrameLayout = (TrackFrameLayout) findViewById(R.id.track_list_container);
 
                 if (localArtist.artistImages.size() > 0) {
@@ -114,5 +125,31 @@ public class MainActivity extends ActionBarActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public LocalTrack onGetNextTrack() {
+
+        TrackActivityFragment tracksActivityFragment;
+
+        FragmentManager fm = getSupportFragmentManager();
+        tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
+
+        LocalTrack nextTrack = tracksActivityFragment.getNextTrack();
+
+        return nextTrack;
+    }
+
+    @Override
+    public LocalTrack onGetPreviousTrack() {
+
+        TrackActivityFragment tracksActivityFragment;
+
+        FragmentManager fm = getSupportFragmentManager();
+        tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
+
+        LocalTrack previousTrack = tracksActivityFragment.getPreviousTrack();
+
+        return previousTrack;
     }
 }

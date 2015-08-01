@@ -73,18 +73,21 @@
         android:weightSum="3">
 
         <ImageButton
+            android:id="@+id/btnPrevTrack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_media_previous"
             android:layout_weight="1"/>
 
         <ImageButton
+            android:id="@+id/btnPlayPauseTrack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_media_play"
             android:layout_weight="1"/>
 
         <ImageButton
+            android:id="@+id/btnNextTrack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@android:drawable/ic_media_next"

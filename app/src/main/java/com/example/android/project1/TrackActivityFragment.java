@@ -48,6 +48,8 @@ public class TrackActivityFragment extends Fragment {
     private String id;
     private String artist;
 
+    private int intCurrentTrack;
+
     public interface OnTrackSelectedListener {
         public void OnTrackSelectedListener(LocalTrack localTrack);
     }
@@ -130,7 +132,10 @@ public class TrackActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 //                Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
 //                startActivity(intent);
-                mCallback.OnTrackSelectedListener(tracksArrayList.get(position));
+
+                intCurrentTrack = position;
+
+                mCallback.OnTrackSelectedListener(tracksArrayList.get(intCurrentTrack));
             }
         });
 
@@ -140,6 +145,20 @@ public class TrackActivityFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    public LocalTrack getNextTrack() {
+        if ( intCurrentTrack < (tracksArrayList.size() - 1) ) {
+            intCurrentTrack++;
+        }
+        return tracksArrayList.get(intCurrentTrack);
+    }
+
+    public LocalTrack getPreviousTrack() {
+        if ( intCurrentTrack > 0 ) {
+            intCurrentTrack--;
+        }
+        return tracksArrayList.get(intCurrentTrack);
     }
 
     static class ViewHolder {

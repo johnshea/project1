@@ -5,8 +5,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.android.project1.models.LocalTrack;
 
-public class TrackPlayerActivity extends ActionBarActivity {
+
+public class TrackPlayerActivity extends ActionBarActivity implements TrackPlayerActivityFragment.TrackPlayerActivityListener {
+
+    public TrackPlayerActivity() {
+        super();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,5 +41,15 @@ public class TrackPlayerActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public LocalTrack onGetNextTrack() {
+        return null;
+    }
+
+    @Override
+    public LocalTrack onGetPreviousTrack() {
+        return null;
     }
 }

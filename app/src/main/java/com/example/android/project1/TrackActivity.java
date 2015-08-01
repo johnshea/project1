@@ -7,25 +7,42 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.android.project1.models.LocalTrack;
 import com.squareup.picasso.Picasso;
 
 
-public class TrackActivity extends ActionBarActivity implements TrackActivityFragment.OnTrackSelectedListener {
+public class TrackActivity extends ActionBarActivity implements TrackActivityFragment.OnTrackSelectedListener
+        , TrackPlayerActivityFragment.TrackPlayerActivityListener {
+
+    private String mArtistName;
 
     private TrackActivityFragment.OnTrackSelectedListener mCallback;
 
     @Override
     public void OnTrackSelectedListener(LocalTrack localTrack) {
-        Toast.makeText(this, "(TrackActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "(TrackActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
+
+        TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+
+        trackPlayerActivityFragment.setValues(mArtistName, localTrack);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.replace(R.id.track_list_container, trackPlayerActivityFragment, "trackPlayer")
+                .addToBackStack(null)
+                .commit();
+
     }
 
     private TrackActivityFragment tracksActivityFragment;
 
     private String id;
     private String artist;
+
+    public TrackActivity() {
+        super();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,16 +58,16 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
             tracksActivityFragment = new TrackActivityFragment();
             fragmentTransaction.add(R.id.track_list_container, tracksActivityFragment, "track");
             fragmentTransaction.commit();
-            }
+        }
 
         Intent intent = getIntent();
 
         if ( intent != null ) {
             String id = intent.getStringExtra("id");
-            String artist = intent.getStringExtra("artist");
+            mArtistName = intent.getStringExtra("artist");
             String imageUrl = intent.getStringExtra("image");
-            if ( id != null && artist != null ) {
-                tracksActivityFragment.setValues(id, artist);
+            if ( id != null && mArtistName != null ) {
+                tracksActivityFragment.setValues(id, mArtistName);
                 TrackFrameLayout trackFrameLayout = (TrackFrameLayout)findViewById(R.id.track_list_container);
 
                 if ( !imageUrl.equals("") ) {
@@ -84,5 +101,26 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public LocalTrack onGetNextTrack() {
+
+        FragmentManager fm = getSupportFragmentManager();
+        tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
+
+        LocalTrack nextTrack = tracksActivityFragment.getNextTrack();
+
+        return nextTrack;
+    }
+
+    @Override
+    public LocalTrack onGetPreviousTrack() {
+        FragmentManager fm = getSupportFragmentManager();
+        tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
+
+        LocalTrack previousTrack = tracksActivityFragment.getPreviousTrack();
+
+        return previousTrack;
     }
 }
