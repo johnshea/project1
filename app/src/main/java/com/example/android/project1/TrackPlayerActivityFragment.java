@@ -32,6 +32,9 @@ public class TrackPlayerActivityFragment extends DialogFragment implements View.
     private final String LOG_TAG = TrackActivityFragment.class.getSimpleName();
     private TrackPlayerActivityListener mCallback;
 
+    private boolean mIsPlaying = false;
+    private boolean mIsSongLoaded = false;
+
     private String artistName;
     private LocalTrack localTrack;
 
@@ -58,22 +61,22 @@ public class TrackPlayerActivityFragment extends DialogFragment implements View.
 
     }
 
-        @Override
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-    Intent intent = new Intent(getActivity(), TrackPlayerService.class);
-            getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(getActivity(), TrackPlayerService.class);
+        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-            ImageButton btnPrevTrack = (ImageButton) getView().findViewById(R.id.btnPrevTrack);
+        ImageButton btnPrevTrack = (ImageButton) getView().findViewById(R.id.btnPrevTrack);
         ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
         ImageButton btnNextTrack = (ImageButton) getView().findViewById(R.id.btnNextTrack);
 
         btnPrevTrack.setOnClickListener(this);
-            btnPlayPauseTrack.setOnClickListener(this);
-            btnNextTrack.setOnClickListener(this);
+        btnPlayPauseTrack.setOnClickListener(this);
+        btnNextTrack.setOnClickListener(this);
 
-            populateViews();
+        populateViews();
 
     }
 
@@ -101,21 +104,55 @@ public class TrackPlayerActivityFragment extends DialogFragment implements View.
                 buttonMessage.append("Previous");
                 localTrack = mCallback.onGetPreviousTrack();
                 populateViews();
+
+                mTrackPlayerService.stopSong();
+                mIsSongLoaded = false;
+
+
                 break;
             case R.id.btnPlayPauseTrack:
                 buttonMessage.append("Play/Pause");
 //                Intent intent = new Intent(getActivity(), TrackPlayerService.class);
 //                getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-                mTrackPlayerService.playSong(localTrack.preview_url);
+                if ( !mIsSongLoaded ) {
 
-                final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
+                    mIsSongLoaded = true;
+                    mIsPlaying = true;
 
-                seekBar.setMax(mTrackPlayerService.getDuration());
+                    mTrackPlayerService.playSong(localTrack.preview_url);
 
-                RunnableProgress r = new RunnableProgress(seekBar);
+                    final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
 
-                (new Thread(r)).start();
+                    seekBar.setMax(mTrackPlayerService.getDuration());
+
+                    RunnableProgress r = new RunnableProgress(seekBar);
+
+                    (new Thread(r)).start();
+
+                    ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+
+                    btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_pause);
+                }
+
+                if ( mTrackPlayerService.isPlaying() ) {
+                    mTrackPlayerService.pauseSong();
+                    ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+                    btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_play);
+                } else {
+                    mTrackPlayerService.restartPlayingSong();
+
+                    final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
+
+                    seekBar.setMax(mTrackPlayerService.getDuration());
+
+                    RunnableProgress r = new RunnableProgress(seekBar);
+
+                    (new Thread(r)).start();
+
+                    ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+                    btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_pause);
+                }
 
                 break;
             case R.id.btnNextTrack:

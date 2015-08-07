@@ -64,7 +64,18 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
     }
 
+    public void pauseSong() {
+        mIsPlaying = false;
+        mMediaPlayer.pause();
+    }
+
+    public void restartPlayingSong() {
+        mIsPlaying = true;
+        mMediaPlayer.start();
+    }
+
     public void stopSong() {
+        mIsPlaying = false;
         mMediaPlayer.stop();
         mMediaPlayer.release();
         mMediaPlayer = null;
