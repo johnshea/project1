@@ -48,6 +48,32 @@ SeekBar.OnSeekBarChangeListener {
     private boolean mNewTrackSelected = true;
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        Intent intent = new Intent(getActivity(), TrackPlayerService.class);
+        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        getActivity().startService(intent);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if ( mMoveSeekBarThread != null ) {
+            mMoveSeekBarThread.interrupt();
+            mMoveSeekBarThread = null;
+        }
+
+        if (mBound) {
+            getActivity().unbindService(mConnection);
+            mBound = false;
+        }
+
+    }
+
+    @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
     }
@@ -97,9 +123,6 @@ SeekBar.OnSeekBarChangeListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Intent intent = new Intent(getActivity(), TrackPlayerService.class);
-        getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-
         ImageButton btnPrevTrack = (ImageButton) getView().findViewById(R.id.btnPrevTrack);
         ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
         ImageButton btnNextTrack = (ImageButton) getView().findViewById(R.id.btnNextTrack);
@@ -112,12 +135,6 @@ SeekBar.OnSeekBarChangeListener {
 
         populateViews();
 
-    }
-
-    @Override
-    public void onDestroyView() {
-        getActivity().unbindService(mConnection);
-        super.onDestroyView();
     }
 
     private void populateViews() {
@@ -326,12 +343,14 @@ SeekBar.OnSeekBarChangeListener {
                 }
 
                 if ( mTrackPlayerService != null && mTrackPlayerService.isTrackPlaying() ) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSeekBar.setProgress(mTrackPlayerService.getCurrentPosition());
-                        }
-                    });
+                    if ( getActivity() != null ) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSeekBar.setProgress(mTrackPlayerService.getCurrentPosition());
+                            }
+                        });
+                    }
                 }
 
             }

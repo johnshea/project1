@@ -25,7 +25,11 @@ public class MainActivity extends ActionBarActivity
 //        Toast.makeText(this, "(MainActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+        TrackPlayerActivityFragment trackPlayerActivityFragment = (TrackPlayerActivityFragment) fragmentManager.findFragmentByTag("dialog");
+
+        if ( trackPlayerActivityFragment == null ) {
+            trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+        }
 
         trackPlayerActivityFragment.setValues(mArtistName, localTrack);
 

@@ -100,7 +100,17 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     public int getDuration() {
-        return mMediaPlayer.getDuration();
+
+        int result = 0;
+
+        if ( mIsMediaPlayerPrepared ) {
+            result = mMediaPlayer.getDuration();
+        } else {
+            result = 30;
+        }
+
+        return result;
+
     }
 
     boolean mIsTrackLoaded;
