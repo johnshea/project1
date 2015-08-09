@@ -113,22 +113,39 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     public void loadTrack(String url) {
 
         try {
-            if ( mIsTrackLoaded ) {
-                mMediaPlayer.stop();
-                mIsTrackPlaying = false;
-                mDuration = 0;
-                mCurrentPosition = 0;
-            }
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(url);
+
             mIsTrackLoaded = true;
             mIsMediaPlayerPrepared = false;
+            mIsTrackPlaying = false;
+            mIsPaused = false;
+
+            mDuration = 0;
+            mCurrentPosition = 0;
         }
         catch (IOException e) {
             Log.e(LOG_TAG, "Unable to playSong");
         }
+
     }
 
+    public void unloadTrack() {
+
+        if ( mIsTrackPlaying ) {
+            mMediaPlayer.stop();
+            mIsTrackPlaying = false;
+        }
+
+        if ( mIsTrackLoaded ) {
+            mMediaPlayer.reset();
+            mIsTrackPlaying = false;
+            mIsPaused = false;
+            mIsTrackLoaded = false;
+            mIsMediaPlayerPrepared = false;
+        }
+
+    }
     public void playPauseTrack() {
         if ( mIsTrackLoaded && !mIsMediaPlayerPrepared ) {
             mMediaPlayer.prepareAsync();
@@ -203,5 +220,9 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         mDuration = 0;
         mCurrentPosition = 0;
 
+    }
+
+    public void seekTo(int newPosition) {
+        mMediaPlayer.seekTo(newPosition);
     }
 }
