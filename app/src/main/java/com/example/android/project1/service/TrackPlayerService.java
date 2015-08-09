@@ -42,10 +42,15 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             public void run() {
                 mediaPlayer.start();
             }
-        }).start();
+        }, "Thread_MediaPlayer").start();
 
         mIsPlaying = true;
-        Log.d(LOG_TAG, "Current position: " + mediaPlayer.getCurrentPosition());
+        mIsTrackPlaying = true;
+        mIsPaused = false;
+        mIsMediaPlayerPrepared = true;
+        mDuration = mediaPlayer.getDuration();
+
+//        Log.d(LOG_TAG, "Current position: " + mediaPlayer.getCurrentPosition());
     }
 
     public void playSong(String url) {
@@ -98,4 +103,105 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         return mMediaPlayer.getDuration();
     }
 
+    boolean mIsTrackLoaded;
+    boolean mIsTrackPlaying;
+    int mDuration;
+    int mCurrentPosition;
+    boolean mIsMediaPlayerPrepared;
+    boolean mIsPaused;
+
+    public void loadTrack(String url) {
+
+        try {
+            if ( mIsTrackLoaded ) {
+                mMediaPlayer.stop();
+                mIsTrackPlaying = false;
+                mDuration = 0;
+                mCurrentPosition = 0;
+            }
+            mMediaPlayer.reset();
+            mMediaPlayer.setDataSource(url);
+            mIsTrackLoaded = true;
+            mIsMediaPlayerPrepared = false;
+        }
+        catch (IOException e) {
+            Log.e(LOG_TAG, "Unable to playSong");
+        }
+    }
+
+    public void playPauseTrack() {
+        if ( mIsTrackLoaded && !mIsMediaPlayerPrepared ) {
+            mMediaPlayer.prepareAsync();
+        }
+
+        if ( mIsMediaPlayerPrepared && mIsTrackPlaying && !mIsPaused ) {
+            mMediaPlayer.pause();
+            mIsTrackPlaying = false;
+            mIsPaused = true;
+        } else if (mIsMediaPlayerPrepared && !mIsTrackPlaying && mIsPaused) {
+            mMediaPlayer.start();
+            mIsTrackPlaying = true;
+            mIsPaused = false;
+        }
+    }
+
+//    public void pausePlayTrack() {
+//
+//    }
+
+    public boolean isTrackLoaded() {
+        return mIsTrackLoaded;
+    }
+
+    public boolean isTrackPlaying() {
+        return mIsTrackPlaying;
+    }
+
+    public boolean isTrackPaused() { return mIsPaused; }
+
+    public int getTrackLength() {
+
+//        int result = -1;
+//
+//        if ( mIsTrackLoaded ) {
+//            result = mMediaPlayer.getDuration();
+//        } else {
+//            result = -1;
+//        }
+
+        return mDuration;
+    }
+
+    public int getTrackCurrentPosition() {
+
+        int result = 0;
+
+        if ( mIsMediaPlayerPrepared ) {
+            result = mMediaPlayer.getCurrentPosition();
+        } else {
+            result = 0;
+        }
+
+        return result;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        mMediaPlayer.setOnPreparedListener(this);
+        mMediaPlayer.setOnCompletionListener(this);
+
+        mIsTrackLoaded = false;
+        mIsTrackPlaying = false;
+        mIsPaused = false;
+        mIsMediaPlayerPrepared = false;
+
+        mDuration = 0;
+        mCurrentPosition = 0;
+
+    }
 }

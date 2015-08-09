@@ -41,6 +41,8 @@ public class TrackPlayerActivityFragment extends DialogFragment implements View.
     private TrackPlayerService mTrackPlayerService;
     private Boolean mBound = false;
 
+    private Thread mMoveSeekBarThread;
+
     public interface TrackPlayerActivityListener {
         public LocalTrack onGetNextTrack();
         public LocalTrack onGetPreviousTrack();
@@ -92,6 +94,8 @@ public class TrackPlayerActivityFragment extends DialogFragment implements View.
         Picasso.with(getActivity()).load(localTrack.getLargestImageUrl()).into(trackPlayerAlbumArtwork);
         trackPlayerTrackName.setText(localTrack.trackName);
 
+//        mTrackPlayerService.loadTrack(localTrack.preview_url);
+
     }
 
     @Override
@@ -99,125 +103,55 @@ public class TrackPlayerActivityFragment extends DialogFragment implements View.
 
         StringBuilder buttonMessage = new StringBuilder();
 
+        ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+
+        if ( mMoveSeekBarThread == null ) {
+
+            final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
+            seekBar.setMax(mTrackPlayerService.getDuration());
+
+            RunnableProgress r = new RunnableProgress(seekBar);
+
+            mMoveSeekBarThread = new Thread(r, "Thread_mMoveSeekBarThread");
+            mMoveSeekBarThread.start();
+        }
+
         switch (v.getId()) {
             case R.id.btnPrevTrack:
                 buttonMessage.append("Previous");
                 localTrack = mCallback.onGetPreviousTrack();
                 populateViews();
 
-                mTrackPlayerService.stopSong();
-                mIsSongLoaded = false;
+                mTrackPlayerService.loadTrack(localTrack.preview_url);
 
+                btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_play);
 
                 break;
             case R.id.btnPlayPauseTrack:
                 buttonMessage.append("Play/Pause");
-//                Intent intent = new Intent(getActivity(), TrackPlayerService.class);
-//                getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-                if ( !mIsSongLoaded ) {
-
-                    mIsSongLoaded = true;
-                    mIsPlaying = true;
-
-                    mTrackPlayerService.playSong(localTrack.preview_url);
-
-                    final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
-
-                    seekBar.setMax(mTrackPlayerService.getDuration());
-
-                    RunnableProgress r = new RunnableProgress(seekBar);
-
-                    (new Thread(r)).start();
-
-                    ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
-
-                    btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_pause);
+                if ( !mTrackPlayerService.isTrackLoaded() ) {
+                    mTrackPlayerService.loadTrack(localTrack.preview_url);
+                    mTrackPlayerService.playPauseTrack();
+                } else {
+                    mTrackPlayerService.playPauseTrack();
                 }
 
-                if ( mTrackPlayerService.isPlaying() ) {
-                    mTrackPlayerService.pauseSong();
-                    ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
-                    btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_play);
-                } else {
-                    mTrackPlayerService.restartPlayingSong();
-
-                    final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
-
-                    seekBar.setMax(mTrackPlayerService.getDuration());
-
-                    RunnableProgress r = new RunnableProgress(seekBar);
-
-                    (new Thread(r)).start();
-
-                    ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+                if ( mTrackPlayerService.isTrackPaused() ) {
                     btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_pause);
+                } else {
+                    btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_play);
                 }
 
                 break;
             case R.id.btnNextTrack:
-//                buttonMessage.append("Next");
-//                localTrack = mCallback.onGetNextTrack();
+                buttonMessage.append("Next");
+                localTrack = mCallback.onGetNextTrack();
+                populateViews();
 
-//                final TextView trackPlayerArtistName = (TextView) getView().findViewById(R.id.trackPlayerArtistName);
-//
-//                trackPlayerArtistName.setText("Is this thing on????");
+                mTrackPlayerService.loadTrack(localTrack.preview_url);
 
-//                final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
-//
-//
-//                seekBar.setMax(mTrackPlayerService.getDuration());
-//
-//                RunnableProgress r = new RunnableProgress(seekBar);
-//
-//                (new Thread(r)).start();
-
-////                seekBar.setMax(15000);
-//                seekBar.setProgress(7500);
-
-//                seekBar.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        seekBar.setMax(mTrackPlayerService.getDuration());
-//                    }
-//                });
-
-//                while( mTrackPlayerService.isPlaying() ) {
-//
-//                    try {
-//                        Thread.sleep(1000);
-//                    } catch(Exception e) {
-//                        Log.e(LOG_TAG, "Exception updating seekBar progress");
-//                    }
-//
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            TextView trackPlayerArtistName = (TextView) getView().findViewById(R.id.trackPlayerArtistName);
-////                            int position = mTrackPlayerService.getCurrentPosition();
-//                            trackPlayerArtistName.setText("John");
-////                            seekBar.setProgress(0);
-////                            seekBar.setProgress(position);
-////                            Log.d(LOG_TAG, "position: " + position);
-//                        }
-//                    });
-//                }
-
-//                Log.d(LOG_TAG, "getDuration: " + mTrackPlayerService.getDuration());
-//                final SeekBar seekBarProgress = (SeekBar) getView().findViewById(R.id.seekBar);
-//
-//                while( mTrackPlayerService.isPlaying() ) {
-////                    seekBar.setProgress(mTrackPlayerService.getCurrentPosition());
-////                    Log.d(LOG_TAG, "getCurrentPosition: " + mTrackPlayerService.getCurrentPosition());
-//                    seekBar.post(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            seekBarProgress.setProgress(7500);
-//                        }
-//                    });
-//                }
-
-//                populateViews();
+                btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_play);
                 break;
             default:
                 buttonMessage.append("Unknown");
@@ -284,7 +218,7 @@ public class TrackPlayerActivityFragment extends DialogFragment implements View.
 
             mSeekBar.setMax(mTrackPlayerService.getDuration());
 
-            while( mTrackPlayerService.isPlaying() ) {
+            while( true ) {
 //                    seekBar.setProgress(mTrackPlayerService.getCurrentPosition());
 //                    Log.d(LOG_TAG, "getCurrentPosition: " + mTrackPlayerService.getCurrentPosition());
                 try {
