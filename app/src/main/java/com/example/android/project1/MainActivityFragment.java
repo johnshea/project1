@@ -52,6 +52,7 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("artistsArrayList", artistsArrayList);
     }
 
     @Override
@@ -88,6 +89,10 @@ public class MainActivityFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         artistsArrayList = new ArrayList<LocalArtist>();
+
+        if ( savedInstanceState != null ) {
+            artistsArrayList = savedInstanceState.getParcelableArrayList("artistsArrayList");
+        }
 
         final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
 

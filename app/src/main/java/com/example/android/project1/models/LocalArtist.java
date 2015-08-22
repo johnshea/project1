@@ -1,18 +1,59 @@
 package com.example.android.project1.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by John on 7/3/2015.
  */
-public class LocalArtist {
+public class LocalArtist implements Parcelable {
     public String id;
     public String name;
     public String url;
     public ArrayList<LocalImage> artistImages;
-
     private Integer smallestImageIndex;
     private Integer largestImageIndex;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(url);
+        dest.writeTypedList(artistImages);
+        dest.writeInt(smallestImageIndex);
+        dest.writeInt(largestImageIndex);
+    }
+
+    private LocalArtist(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        url = in.readString();
+        artistImages = in.createTypedArrayList(LocalImage.CREATOR);
+        //in.readTypedList(artistImages, LocalImage.CREATOR);
+        smallestImageIndex = in.readInt();
+        largestImageIndex = in.readInt();
+    }
+
+    public static final Parcelable.Creator<LocalArtist> CREATOR =
+            new Parcelable.Creator<LocalArtist>() {
+
+                @Override
+                public LocalArtist createFromParcel(Parcel source) {
+                    return new LocalArtist(source);
+                }
+
+                @Override
+                public LocalArtist[] newArray(int size) {
+                    return new LocalArtist[size];
+                }
+            };
 
     public LocalArtist(String id, String name, ArrayList<LocalImage> artistImages) {
         this.id = id;

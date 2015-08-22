@@ -55,6 +55,12 @@ public class TrackActivityFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("tracksArrayList", tracksArrayList);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
@@ -71,6 +77,10 @@ public class TrackActivityFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        if ( savedInstanceState != null ) {
+            tracksArrayList = savedInstanceState.getParcelableArrayList("tracksArrayList");
+        }
 
         if ( tracksArrayList == null ){
             new DownloadTracks().execute(id);
