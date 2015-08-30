@@ -43,7 +43,7 @@ public class TrackActivityFragment extends Fragment {
 
     private ListView tracksListView;
     private ArrayList<LocalTrack> tracksArrayList;
-    private ArrayAdapter<Tracks> tracksAdapter;
+//    private ArrayAdapter<Tracks> tracksAdapter;
 
     private String id;
     private String artist;
@@ -51,7 +51,7 @@ public class TrackActivityFragment extends Fragment {
     private int intCurrentTrack;
 
     public interface OnTrackSelectedListener {
-        public void OnTrackSelectedListener(LocalTrack localTrack);
+        void OnTrackSelectedListener(ArrayList<LocalTrack> tracks, Integer position);
     }
 
     @Override
@@ -145,7 +145,8 @@ public class TrackActivityFragment extends Fragment {
 
                 intCurrentTrack = position;
 
-                mCallback.OnTrackSelectedListener(tracksArrayList.get(intCurrentTrack));
+//                mCallback.OnTrackSelectedListener(tracksArrayList.get(intCurrentTrack));
+                mCallback.OnTrackSelectedListener(tracksArrayList, intCurrentTrack);
             }
         });
 
@@ -242,7 +243,7 @@ public class TrackActivityFragment extends Fragment {
             try {
                 results = spotify.getArtistTopTrack(artistId, optionsMap);
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
+                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage());
             }
 
             return results;

@@ -11,6 +11,8 @@ import android.view.MenuItem;
 import com.example.android.project1.models.LocalTrack;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 
 public class TrackActivity extends ActionBarActivity implements TrackActivityFragment.OnTrackSelectedListener
         , TrackPlayerActivityFragment.TrackPlayerActivityListener {
@@ -20,12 +22,13 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
     private TrackActivityFragment.OnTrackSelectedListener mCallback;
 
     @Override
-    public void OnTrackSelectedListener(LocalTrack localTrack) {
+    public void OnTrackSelectedListener(ArrayList<LocalTrack> tracks, Integer position) {
 //        Toast.makeText(this, "(TrackActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
 
         TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
 
-        trackPlayerActivityFragment.setValues(mArtistName, localTrack);
+//        trackPlayerActivityFragment.setValues(mArtistName, localTrack);
+        trackPlayerActivityFragment.setValues(mArtistName, tracks, position);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -104,23 +107,24 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
     }
 
     @Override
-    public LocalTrack onGetNextTrack() {
+    public void onClickNextTrack() {
 
         FragmentManager fm = getSupportFragmentManager();
         tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
 
-        LocalTrack nextTrack = tracksActivityFragment.getNextTrack();
-
-        return nextTrack;
+        tracksActivityFragment.getNextTrack();
     }
 
     @Override
-    public LocalTrack onGetPreviousTrack() {
+    public void onClickPreviousTrack() {
         FragmentManager fm = getSupportFragmentManager();
         tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
 
-        LocalTrack previousTrack = tracksActivityFragment.getPreviousTrack();
+        tracksActivityFragment.getPreviousTrack();
+    }
 
-        return previousTrack;
+    @Override
+    public void onClickPlayPauseTrack() {
+        // TODO
     }
 }

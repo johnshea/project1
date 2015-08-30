@@ -41,18 +41,20 @@ public class MainActivityFragment extends Fragment {
 
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
-    private ArrayAdapter<String> artistAdapter;
+//    private ArrayAdapter<String> artistAdapter;
     private ArrayList<LocalArtist> artistsArrayList;
+    private int mPosition = -1;
     private ListView listView;
 
     public interface OnArtistSelectedListener {
-        public void onArtistSelected(LocalArtist localArtist);
+        void onArtistSelected(LocalArtist localArtist);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("artistsArrayList", artistsArrayList);
+        outState.putInt("position", mPosition);
     }
 
     @Override
@@ -91,8 +93,64 @@ public class MainActivityFragment extends Fragment {
         artistsArrayList = new ArrayList<LocalArtist>();
 
         if ( savedInstanceState != null ) {
+//            artistsArrayList = savedInstanceState.getParcelableArrayList("artistsArrayList");
             artistsArrayList = savedInstanceState.getParcelableArrayList("artistsArrayList");
+            mPosition = savedInstanceState.getInt("position", -1);
+
+            ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
+
+            listView.setAdapter(adapter);
+
         }
+
+        final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
+
+//        artistQuery.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                String query = artistQuery.getText().toString();
+//                if ( !query.isEmpty() ) {
+//                    new DownloadArtists().execute(query);
+//                } else {
+//
+//                    artistsArrayList.clear();
+//                    ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
+//
+//                    listView.setAdapter(adapter);
+//                }
+//            }
+//        });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                LocalArtist selectedArtist;
+
+                // TODO this should be artistAdapter.getItem..see lesson 3 - 5th session
+                selectedArtist = artistsArrayList.get(position);
+                mPosition = position;
+
+                mCallback.onArtistSelected(selectedArtist);
+
+            }
+        });
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
 
@@ -110,7 +168,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {
                 String query = artistQuery.getText().toString();
-                if ( !query.isEmpty() ) {
+                if (!query.isEmpty()) {
                     new DownloadArtists().execute(query);
                 } else {
 
@@ -122,19 +180,15 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                LocalArtist selectedArtist;
-
-                // TODO this should be artistAdapter.getItem..see lesson 3 - 5th session
-                selectedArtist = artistsArrayList.get(position);
-
-                mCallback.onArtistSelected(selectedArtist);
-
-            }
-        });
+//        if ( mPosition != -1 ) {
+//            getActivity().runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    listView.smoothScrollToPositionFromTop(mPosition, 0);
+//                }
+//            });
+//        }
 
     }
 
@@ -152,7 +206,7 @@ public class MainActivityFragment extends Fragment {
                     results = spotify.searchArtists(params[0]);
                 }
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
+                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage());
             }
 
             return results;

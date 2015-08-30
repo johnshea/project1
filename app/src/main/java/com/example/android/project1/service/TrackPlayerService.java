@@ -1,14 +1,24 @@
 package com.example.android.project1.service;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.example.android.project1.Constants;
+import com.example.android.project1.R;
+import com.example.android.project1.models.LocalTrack;
+
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by John on 8/2/2015.
@@ -21,6 +31,17 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     private final IBinder mBinder = new LocalBinder();
     private MediaPlayer mMediaPlayer = null;
     private boolean mIsPlaying = false;
+
+    private String artistName;
+    private ArrayList<LocalTrack> tracks;
+    private Integer mCurrentTrackPosition;
+
+    boolean mIsTrackLoaded;
+    boolean mIsTrackPlaying;
+    int mDuration;
+    int mCurrentPosition;
+    boolean mIsMediaPlayerPrepared;
+    boolean mIsPaused;
 
     public class LocalBinder extends Binder {
         public TrackPlayerService getService() {
@@ -50,6 +71,25 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         mIsMediaPlayerPrepared = true;
         mDuration = mediaPlayer.getDuration();
 
+        // Trying to get to stay in foreground
+//        Notification notification = new Notification.Builder(this)
+//                .setSmallIcon(R.drawable.ic_action_play)
+//                .build();
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+//        notification.setLatestEventInfo(getApplicationContext(), "Not sure", "really not sure", pendingIntent);
+//        startForeground(808, notification);
+        //
+
+        buildNotification("PLAY");
+
+        Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, true)
+                .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mediaPlayer.getDuration())
+                .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mediaPlayer.getCurrentPosition());
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
 //        Log.d(LOG_TAG, "Current position: " + mediaPlayer.getCurrentPosition());
     }
 
@@ -58,7 +98,8 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         try {
-            mMediaPlayer.setDataSource(url);
+//            mMediaPlayer.setDataSource(url);
+            mMediaPlayer.setDataSource(tracks.get(mCurrentTrackPosition).preview_url);
             mMediaPlayer.setOnPreparedListener(this);
             mMediaPlayer.setOnCompletionListener(this);
             mMediaPlayer.prepareAsync();
@@ -74,51 +115,103 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         mMediaPlayer.pause();
     }
 
-    public void restartPlayingSong() {
-        mIsPlaying = true;
-        mMediaPlayer.start();
+    public void previousTrack() {
+
+        unloadTrack();
+
+        if ( mCurrentTrackPosition > 0 ) {
+            mCurrentTrackPosition--;
+        }
+
+        buildNotification("PREV");
+
+//        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+//                .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition).getLargestImageUrl());
+
+        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+                .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, artistName);
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
-    public void stopSong() {
-        mIsPlaying = false;
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
+    public void nextTrack() {
+
+        unloadTrack();
+
+        if ( mCurrentTrackPosition < (tracks.size() - 1) ) {
+            mCurrentTrackPosition++;
+        }
+
+        buildNotification("NEXT");
+
+//        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+//                .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition).getLargestImageUrl());
+
+        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+                .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, artistName);
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
+
+//    public void restartPlayingSong() {
+//        mIsPlaying = true;
+//        mMediaPlayer.start();
+//    }
+
+//    public void stopSong() {
+//        mIsPlaying = false;
+//        mMediaPlayer.stop();
+//        mMediaPlayer.release();
+//        mMediaPlayer = null;
+//    }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
         mIsPlaying = false;
     }
 
-    public Boolean isPlaying() {
-        return mIsPlaying;
-    }
+//    public Boolean isPlaying() {
+//        return mIsPlaying;
+//    }
 
-    public int getCurrentPosition() {
-        return mMediaPlayer.getCurrentPosition();
-    }
+//    public int getCurrentPosition() {
+//        return mMediaPlayer.getCurrentPosition();
+//    }
 
-    public int getDuration() {
+//    public int getDuration() {
+//
+//        int result = 0;
+//
+//        if ( mIsMediaPlayerPrepared ) {
+//            result = mMediaPlayer.getDuration();
+//        } else {
+//            result = 30;
+//        }
+//
+//        return result;
+//
+//    }
 
-        int result = 0;
-
-        if ( mIsMediaPlayerPrepared ) {
-            result = mMediaPlayer.getDuration();
-        } else {
-            result = 30;
+    public void loadTracks(String artistName, ArrayList<LocalTrack> tracks) {
+        try {
+            this.artistName = artistName;
+            this.tracks = tracks;
         }
-
-        return result;
-
+        catch (Exception e) {
+            Log.e(LOG_TAG, "Unable to loadTracks in Service");
+        }
     }
 
-    boolean mIsTrackLoaded;
-    boolean mIsTrackPlaying;
-    int mDuration;
-    int mCurrentPosition;
-    boolean mIsMediaPlayerPrepared;
-    boolean mIsPaused;
+    public void setCurrentTrackPosition(Integer mCurrentTrackPosition) {
+        this.mCurrentTrackPosition = mCurrentTrackPosition;
+    }
+
+//    public void setupTrack() {
+//        this.unloadTrack();
+//        this.loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
+//    }
 
     public void loadTrack(String url) {
 
@@ -155,8 +248,21 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mIsMediaPlayerPrepared = false;
         }
 
+        Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, false)
+                .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, 30000)
+                .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, 0);
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
     }
+
     public void playPauseTrack() {
+
+        if ( !isTrackLoaded() ) {
+            loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
+        }
+
         if ( mIsTrackLoaded && !mIsMediaPlayerPrepared ) {
             mMediaPlayer.prepareAsync();
         }
@@ -165,10 +271,30 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mMediaPlayer.pause();
             mIsTrackPlaying = false;
             mIsPaused = true;
+
+            buildNotification("PAUSE");
+
+            Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mMediaPlayer.isPlaying())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mMediaPlayer.getDuration())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mMediaPlayer.getCurrentPosition());
+
+            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
         } else if (mIsMediaPlayerPrepared && !mIsTrackPlaying && mIsPaused) {
             mMediaPlayer.start();
             mIsTrackPlaying = true;
             mIsPaused = false;
+
+            buildNotification("PLAY");
+
+            Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mMediaPlayer.isPlaying())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mMediaPlayer.getDuration())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mMediaPlayer.getCurrentPosition());
+
+            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
         }
     }
 
@@ -176,18 +302,49 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 //
 //    }
 
+    private void buildNotification(String action) {
+
+        Intent prevIntent = new Intent(this, TrackPlayerService.class);
+        prevIntent.putExtra("action", "PREVIOUS");
+
+        Intent playPauseIntent = new Intent(this, TrackPlayerService.class);
+        playPauseIntent.putExtra("action", "PLAYPAUSE");
+
+        Intent nextIntent = new Intent(this, TrackPlayerService.class);
+        nextIntent.putExtra("action", "NEXT");
+
+        PendingIntent piPrevIntent = PendingIntent.getService(this, 0, prevIntent, 0);
+        PendingIntent piPlayPauseIntent = PendingIntent.getService(this, 1, playPauseIntent, 0);
+        PendingIntent piNextIntent = PendingIntent.getService(this, 2, nextIntent, 0);
+
+        final NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.no_album)
+                        .setContentTitle("Now Playing")
+                        .setContentText(tracks.get(mCurrentTrackPosition).trackName)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(tracks.get(mCurrentTrackPosition).trackName))
+                        .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
+                        .addAction(R.drawable.ic_action_play, action, piPlayPauseIntent)
+                        .addAction(android.R.drawable.ic_media_next, "next", piNextIntent);
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(0, mBuilder.build());
+
+    }
+
     public boolean isTrackLoaded() {
         return mIsTrackLoaded;
     }
 
-    public boolean isTrackPlaying() {
-        return mIsTrackPlaying;
-    }
+//    public boolean isTrackPlaying() {
+//        return mIsTrackPlaying;
+//    }
 
-    public boolean isTrackPaused() { return mIsPaused; }
-
-    public int getTrackLength() {
-
+//    public boolean isTrackPaused() { return mIsPaused; }
+//
+//    public int getTrackLength() {
+//
 //        int result = -1;
 //
 //        if ( mIsTrackLoaded ) {
@@ -195,21 +352,45 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 //        } else {
 //            result = -1;
 //        }
+//
+//        return mDuration;
+//    }
 
-        return mDuration;
-    }
+//    public int getTrackCurrentPosition() {
+//
+//        int result = 0;
+//
+//        if ( mIsMediaPlayerPrepared ) {
+//            result = mMediaPlayer.getCurrentPosition();
+//        } else {
+//            result = 0;
+//        }
+//
+//        return result;
+//    }
 
-    public int getTrackCurrentPosition() {
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Bundle bundle = intent.getExtras();
 
-        int result = 0;
+        if ( bundle != null ) {
+            String action = bundle.getString("action");
 
-        if ( mIsMediaPlayerPrepared ) {
-            result = mMediaPlayer.getCurrentPosition();
-        } else {
-            result = 0;
+            switch ( action ) {
+                case "PLAYPAUSE":
+                    playPauseTrack();
+                    break;
+                case "PREVIOUS":
+                    previousTrack();
+                    break;
+                case "NEXT":
+                    nextTrack();
+                    break;
+            }
         }
 
-        return result;
+//        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override

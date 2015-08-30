@@ -29,7 +29,9 @@
             android:label="@string/title_activity_track_player" >
         </activity>
         
-        <service android:name=".service.TrackPlayerService"/>
+        <service
+            android:name=".service.TrackPlayerService"
+            android:exported="false"/>
     </application>
 
 </manifest>

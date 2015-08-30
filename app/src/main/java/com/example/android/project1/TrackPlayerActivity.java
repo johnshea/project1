@@ -1,11 +1,9 @@
 package com.example.android.project1;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import com.example.android.project1.models.LocalTrack;
 
 
 public class TrackPlayerActivity extends ActionBarActivity implements TrackPlayerActivityFragment.TrackPlayerActivityListener {
@@ -44,12 +42,15 @@ public class TrackPlayerActivity extends ActionBarActivity implements TrackPlaye
     }
 
     @Override
-    public LocalTrack onGetNextTrack() {
-        return null;
+    public void onClickNextTrack() {
     }
 
     @Override
-    public LocalTrack onGetPreviousTrack() {
-        return null;
+    public void onClickPreviousTrack() {
+    }
+
+    @Override
+    public void onClickPlayPauseTrack() {
+
     }
 }
