@@ -53,4 +53,9 @@ public class TrackPlayerActivity extends ActionBarActivity implements TrackPlaye
     public void onClickPlayPauseTrack() {
 
     }
+
+    @Override
+    public void onRequestUiUpdate() {
+
+    }
 }

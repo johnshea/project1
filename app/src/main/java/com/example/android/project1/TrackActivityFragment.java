@@ -51,7 +51,7 @@ public class TrackActivityFragment extends Fragment {
     private int intCurrentTrack;
 
     public interface OnTrackSelectedListener {
-        void OnTrackSelectedListener(ArrayList<LocalTrack> tracks, Integer position);
+        void OnTrackSelected(ArrayList<LocalTrack> tracks, Integer position);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class TrackActivityFragment extends Fragment {
             mCallback = (OnTrackSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnTrackSelectedListener");
+                    + " must implement OnTrackSelected");
         }
     }
 
@@ -99,7 +99,7 @@ public class TrackActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setRetainInstance(true);
+//        setRetainInstance(true);
     }
 
     public void setData(ArrayList<LocalTrack> data) {
@@ -145,8 +145,8 @@ public class TrackActivityFragment extends Fragment {
 
                 intCurrentTrack = position;
 
-//                mCallback.OnTrackSelectedListener(tracksArrayList.get(intCurrentTrack));
-                mCallback.OnTrackSelectedListener(tracksArrayList, intCurrentTrack);
+//                mCallback.OnTrackSelected(tracksArrayList.get(intCurrentTrack));
+                mCallback.OnTrackSelected(tracksArrayList, intCurrentTrack);
             }
         });
 

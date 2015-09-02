@@ -1,7 +1,5 @@
 package com.example.android.project1.service;
 
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -9,12 +7,11 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.android.project1.Constants;
-import com.example.android.project1.R;
+import com.example.android.project1.models.LocalArtist;
 import com.example.android.project1.models.LocalTrack;
 
 import java.io.IOException;
@@ -32,7 +29,9 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     private MediaPlayer mMediaPlayer = null;
     private boolean mIsPlaying = false;
 
-    private String artistName;
+    private String mArtistQueryString;
+    private LocalArtist mSelectedArtist;
+
     private ArrayList<LocalTrack> tracks;
     private Integer mCurrentTrackPosition;
 
@@ -71,15 +70,19 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         mIsMediaPlayerPrepared = true;
         mDuration = mediaPlayer.getDuration();
 
-        // Trying to get to stay in foreground
+        //        TODO This code is used for optional components - commenting out now while working on required functionality
+//        // Trying to get to stay in foreground
 //        Notification notification = new Notification.Builder(this)
 //                .setSmallIcon(R.drawable.ic_action_play)
 //                .build();
-//        Intent notificationIntent = new Intent(this, MainActivity.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
-//        notification.setLatestEventInfo(getApplicationContext(), "Not sure", "really not sure", pendingIntent);
+//        Intent notificationIntent = new Intent(this, MainActivity.class)
+//                .putExtra("artistQueryString", mArtistQueryString)
+//                .putExtra("artist", mSelectedArtist)
+//                .putExtra("track", tracks.get(mCurrentTrackPosition));
+//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 101, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        notification.setLatestEventInfo(getApplicationContext(), "Click To Launch Player", mSelectedArtist.name + " - " + tracks.get(mCurrentTrackPosition).trackName, pendingIntent);
 //        startForeground(808, notification);
-        //
+//        //
 
         buildNotification("PLAY");
 
@@ -110,9 +113,32 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
     }
 
-    public void pauseSong() {
-        mIsPlaying = false;
-        mMediaPlayer.pause();
+//    public void pauseSong() {
+//        mIsPlaying = false;
+//        mMediaPlayer.pause();
+//    }
+
+    public void requestUiUpdate() {
+
+        if ( tracks != null ) {
+
+            Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+                    .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                    .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
+
+            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
+            localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mMediaPlayer.isPlaying())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mMediaPlayer.getDuration())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mMediaPlayer.getCurrentPosition())
+                    .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                    .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);;
+
+            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
+        }
+
     }
 
     public void previousTrack() {
@@ -123,6 +149,18 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mCurrentTrackPosition--;
         }
 
+//        TODO This code is used for optional components - commenting out now while working on required functionality
+//        Notification notification = new Notification.Builder(this)
+//                .setSmallIcon(R.drawable.ic_action_play)
+//                .build();
+//        Intent notificationIntent = new Intent(this, MainActivity.class)
+//                .putExtra("artistQueryString", mArtistQueryString)
+//                .putExtra("artist", mSelectedArtist)
+//                .putExtra("track", tracks.get(mCurrentTrackPosition));
+//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 101, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        notification.setLatestEventInfo(getApplicationContext(), "Click To Launch Player", mSelectedArtist.name + " - " + tracks.get(mCurrentTrackPosition).trackName, pendingIntent);
+//        startForeground(808, notification);
+
         buildNotification("PREV");
 
 //        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
@@ -130,7 +168,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
-                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, artistName);
+                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
@@ -143,6 +181,19 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mCurrentTrackPosition++;
         }
 
+        //        TODO This code is used for optional components - commenting out now while working on required functionality
+//
+//        Notification notification = new Notification.Builder(this)
+//                .setSmallIcon(R.drawable.ic_action_play)
+//                .build();
+//        Intent notificationIntent = new Intent(this, MainActivity.class)
+//                .putExtra("artistQueryString", mArtistQueryString)
+//                .putExtra("artist", mSelectedArtist)
+//                .putExtra("track", tracks.get(mCurrentTrackPosition));
+//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 101, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        notification.setLatestEventInfo(getApplicationContext(), "Click To Launch Player", mSelectedArtist.name + " - " + tracks.get(mCurrentTrackPosition).trackName, pendingIntent);
+//        startForeground(808, notification);
+
         buildNotification("NEXT");
 
 //        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
@@ -150,7 +201,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
-                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, artistName);
+                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
@@ -194,9 +245,10 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 //
 //    }
 
-    public void loadTracks(String artistName, ArrayList<LocalTrack> tracks) {
+    public void loadTracks(String artistQueryString, LocalArtist selectedArtist, ArrayList<LocalTrack> tracks) {
         try {
-            this.artistName = artistName;
+            this.mArtistQueryString = artistQueryString;
+            this.mSelectedArtist = selectedArtist;
             this.tracks = tracks;
         }
         catch (Exception e) {
@@ -304,32 +356,35 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
     private void buildNotification(String action) {
 
-        Intent prevIntent = new Intent(this, TrackPlayerService.class);
-        prevIntent.putExtra("action", "PREVIOUS");
+        return;
 
-        Intent playPauseIntent = new Intent(this, TrackPlayerService.class);
-        playPauseIntent.putExtra("action", "PLAYPAUSE");
-
-        Intent nextIntent = new Intent(this, TrackPlayerService.class);
-        nextIntent.putExtra("action", "NEXT");
-
-        PendingIntent piPrevIntent = PendingIntent.getService(this, 0, prevIntent, 0);
-        PendingIntent piPlayPauseIntent = PendingIntent.getService(this, 1, playPauseIntent, 0);
-        PendingIntent piNextIntent = PendingIntent.getService(this, 2, nextIntent, 0);
-
-        final NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.no_album)
-                        .setContentTitle("Now Playing")
-                        .setContentText(tracks.get(mCurrentTrackPosition).trackName)
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText(tracks.get(mCurrentTrackPosition).trackName))
-                        .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
-                        .addAction(R.drawable.ic_action_play, action, piPlayPauseIntent)
-                        .addAction(android.R.drawable.ic_media_next, "next", piNextIntent);
-
-        NotificationManager mNotificationManager =
-                (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(0, mBuilder.build());
+//        TODO This code is used for optional components - commenting out now while working on required functionality
+//        Intent prevIntent = new Intent(this, TrackPlayerService.class);
+//        prevIntent.putExtra("action", "PREVIOUS");
+//
+//        Intent playPauseIntent = new Intent(this, TrackPlayerService.class);
+//        playPauseIntent.putExtra("action", "PLAYPAUSE");
+//
+//        Intent nextIntent = new Intent(this, TrackPlayerService.class);
+//        nextIntent.putExtra("action", "NEXT");
+//
+//        PendingIntent piPrevIntent = PendingIntent.getService(this, 0, prevIntent, 0);
+//        PendingIntent piPlayPauseIntent = PendingIntent.getService(this, 1, playPauseIntent, 0);
+//        PendingIntent piNextIntent = PendingIntent.getService(this, 2, nextIntent, 0);
+//
+//        final NotificationCompat.Builder mBuilder =
+//                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.no_album)
+//                        .setContentTitle("Now Playing")
+//                        .setContentText(tracks.get(mCurrentTrackPosition).trackName)
+//                        .setStyle(new NotificationCompat.BigTextStyle().bigText(tracks.get(mCurrentTrackPosition).trackName))
+//                        .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
+//                        .addAction(R.drawable.ic_action_play, action, piPlayPauseIntent)
+//                        .addAction(android.R.drawable.ic_media_next, "next", piNextIntent);
+//
+//        NotificationManager mNotificationManager =
+//                (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
+//        mNotificationManager.notify(0, mBuilder.build());
 
     }
 
@@ -371,22 +426,26 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Bundle bundle = intent.getExtras();
 
-        if ( bundle != null ) {
-            String action = bundle.getString("action");
+        if ( intent != null ) {
+            Bundle bundle = intent.getExtras();
 
-            switch ( action ) {
-                case "PLAYPAUSE":
-                    playPauseTrack();
-                    break;
-                case "PREVIOUS":
-                    previousTrack();
-                    break;
-                case "NEXT":
-                    nextTrack();
-                    break;
+            if ( bundle != null ) {
+                String action = bundle.getString("action");
+
+                switch ( action ) {
+                    case "PLAYPAUSE":
+                        playPauseTrack();
+                        break;
+                    case "PREVIOUS":
+                        previousTrack();
+                        break;
+                    case "NEXT":
+                        nextTrack();
+                        break;
+                }
             }
+
         }
 
 //        return super.onStartCommand(intent, flags, startId);

@@ -97,6 +97,7 @@ SeekBar.OnSeekBarChangeListener {
         public void onClickNextTrack();
         public void onClickPreviousTrack();
         public void onClickPlayPauseTrack();
+        public void onRequestUiUpdate();
     }
 
     @Override
@@ -187,14 +188,25 @@ SeekBar.OnSeekBarChangeListener {
     @Override
     public void onClick(View v) {
 
-        StringBuilder buttonMessage = new StringBuilder();
+//        StringBuilder buttonMessage = new StringBuilder();
 
-        ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+//        ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+//        final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
+
         final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
 
         switch (v.getId()) {
 
             case R.id.btnPrevTrack:
+
+                if ( mMoveSeekBarThread != null ) {
+                    mMoveSeekBarThread.interrupt();
+                    mMoveSeekBarThread = null;
+                }
+
+                seekBar.setProgress(0);
+                seekBar.setMax(30000);
+                seekBar.setProgress(0);
 
                 mCallback.onClickPreviousTrack();
 
@@ -202,113 +214,27 @@ SeekBar.OnSeekBarChangeListener {
 
             case R.id.btnPlayPauseTrack:
 
-                // Testing building a notification
-//                try {
-
-//                    Intent prevIntent = new Intent(getActivity(), TrackPlayerService.class);
-//                    prevIntent.putExtra("action", "PREVIOUS");
-//
-//                    Intent playPauseIntent = new Intent(getActivity(), TrackPlayerService.class);
-//                    playPauseIntent.putExtra("action", "PLAYPAUSE");
-//
-//                    Intent nextIntent = new Intent(getActivity(), TrackPlayerService.class);
-//                    nextIntent.putExtra("action", "NEXT");
-//
-//                    PendingIntent piPrevIntent = PendingIntent.getService(getActivity(), 0, prevIntent, 0);
-//                    PendingIntent piPlayPauseIntent = PendingIntent.getService(getActivity(), 1, playPauseIntent, 0);
-//                    PendingIntent piNextIntent = PendingIntent.getService(getActivity(), 2, nextIntent, 0);
-
-//                    final RemoteViews notificationLayout = new RemoteViews(getActivity().getPackageName(), R.layout.notification_track_playing_layout);
-//                    notificationLayout.setTextViewText(R.id.textView_trackName, "Test Track Name"/* localTrack.trackName */);
-//                    notificationLayout.setTextViewText(R.id.textView_notification_trackName_remote_view, "Bla Bla Bla");
-//
-////                    ComponentName thisComponentName = new ComponentName(getActivity(), TrackPlayerActivityFragment.class);
-////                    AppWidgetManager appWidgetManager =  AppWidgetManager.getInstance(getActivity());
-////                    appWidgetManager.updateAppWidget(thisComponentName, notificationLayout);
-//
-//                    notificationLayout.setOnClickPendingIntent(R.id.btnPrevTrack, piPrevIntent);
-//                    notificationLayout.setOnClickPendingIntent(R.id.btnPlayPauseTrack, piPlayPauseIntent);
-//                    notificationLayout.setOnClickPendingIntent(R.id.btnNextTrack, piNextIntent);
-//
-//
-//
-//
-//
-//                    final NotificationCompat.Builder mBuilder =
-//                            new NotificationCompat.Builder(getActivity())
-//                                    .setSmallIcon(R.drawable.no_album)
-//                                    .setContentTitle("Now Playing")
-//                                    .setContentText(localTrack.trackName)
-//                                    .setStyle(new NotificationCompat.BigTextStyle().bigText(localTrack.trackName))
-//                                    .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
-//                                    .addAction(R.drawable.ic_action_play, "play/pause", piPlayPauseIntent)
-//                                    .addAction(android.R.drawable.ic_media_next, "next", piNextIntent);
-
-//                    final NotificationCompat.Builder mBuilder =
-//                            new NotificationCompat.Builder(getActivity())
-//                                    .setSmallIcon(R.drawable.no_album)
-//                                    .setContentTitle("Now Playing")
-//                                    .setContentText(localTrack.trackName)
-//                                    .setContent(notificationLayout);
-
-//                    final NotificationManager mNotificationManager =
-//                            (NotificationManager) getActivity().getSystemService(getActivity().NOTIFICATION_SERVICE);
-//
-//                    Target target = new Target() {
-//                        @Override
-//                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-////                            mBuilder.setLargeIcon(bitmap);
-//                            notificationLayout.setImageViewBitmap(R.id.imageView_albumImage, bitmap);
-//                            mNotificationManager.notify(0, mBuilder.build());
-//                        }
-//
-//                        @Override
-//                        public void onBitmapFailed(Drawable errorDrawable) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-//
-//                        }
-//                    };
-//
-//                    Picasso.with(getActivity()).load(localTrack.getLargestImageUrl()).into(target);
-//
-//
-//                    Intent resultIntent = new Intent(getActivity(), MainActivity.class);
-//
-//                    TaskStackBuilder stackBuilder = TaskStackBuilder.create(getActivity());
-//                    stackBuilder.addParentStack(MainActivity.class);
-//                    stackBuilder.addNextIntent(resultIntent);
-//                    PendingIntent resultPendingIntent =
-//                            stackBuilder.getPendingIntent(
-//                                    0,
-//                                    PendingIntent.FLAG_UPDATE_CURRENT
-//                            );
-//
-//                    mBuilder.setContentIntent(resultPendingIntent);
-//
-//                    NotificationManager mNotificationManager =
-//                            (NotificationManager) getActivity().getSystemService(getActivity().NOTIFICATION_SERVICE);
-//                    mNotificationManager.notify(0, mBuilder.build());
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-                // end testing building a notification
-
                 mCallback.onClickPlayPauseTrack();
 
                 break;
 
             case R.id.btnNextTrack:
 
+                if ( mMoveSeekBarThread != null ) {
+                    mMoveSeekBarThread.interrupt();
+                    mMoveSeekBarThread = null;
+                }
+
+                seekBar.setProgress(0);
+                seekBar.setMax(30000);
+                seekBar.setProgress(0);
+
                 mCallback.onClickNextTrack();
 
                 break;
 
             default:
-                buttonMessage.append("Unknown");
+//                buttonMessage.append("Unknown");
                 break;
         }
 
@@ -345,6 +271,7 @@ SeekBar.OnSeekBarChangeListener {
         this.currentTrackPosition = position;
 
         this.localTrack = tracks.get(position);
+
     }
 
     public void updateViews(String artistName, LocalTrack latestTrack) {
@@ -362,13 +289,14 @@ SeekBar.OnSeekBarChangeListener {
 
         final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
 
-        seekBar.setMax(trackDuration);
-        seekBar.setProgress(currentTrackPosition);
-
         if ( mMoveSeekBarThread != null ) {
             mMoveSeekBarThread.interrupt();
             mMoveSeekBarThread = null;
         }
+
+        seekBar.setProgress(0);
+        seekBar.setMax(trackDuration);
+        seekBar.setProgress(currentTrackPosition);
 
         if ( isPlaying ) {
 
@@ -379,6 +307,10 @@ SeekBar.OnSeekBarChangeListener {
 
         }
 
+    }
+
+    public void requestUiUpdate() {
+        mCallback.onRequestUiUpdate();
     }
 
     @Override

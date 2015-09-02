@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.android.project1.models.LocalArtist;
 import com.example.android.project1.models.LocalTrack;
@@ -29,8 +30,13 @@ public class MainActivity extends ActionBarActivity
         , TrackPlayerActivityFragment.TrackPlayerActivityListener {
 
     private boolean mDualPane;
+    private LocalArtist mSelectedArtist;
     private String mArtistName;
+    private String mArtistQueryString = "";
     ServiceStatusReceiver mServiceStatusReceiver;
+
+    private TrackPlayerService mTrackPlayerService;
+    private Boolean mBound = false;
 
     @Override
     protected void onPause() {
@@ -66,11 +72,44 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public void OnTrackSelectedListener(ArrayList<LocalTrack> tracks, Integer position) {
+    public void onArtistSearchChanged() {
+
+        if (mDualPane) {
+            ActionBar actionBar = this.getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setSubtitle("");
+            }
+
+            TrackActivityFragment tracksActivityFragment;
+
+            FragmentManager fm = getSupportFragmentManager();
+            tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
+
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+
+            if (tracksActivityFragment != null) {
+                fragmentTransaction.remove(tracksActivityFragment);
+                fragmentTransaction.commit();
+            }
+
+            TrackFrameLayout trackFrameLayout = (TrackFrameLayout) findViewById(R.id.track_list_container);
+
+            // TODO Need to use correct color
+//            trackFrameLayout.setBackgroundColor(Color.LTGRAY);
+
+            Picasso.with(this).load(R.drawable.no_album)
+                    .into(trackFrameLayout);
+        }
+
+    }
+
+    @Override
+    public void OnTrackSelected(ArrayList<LocalTrack> tracks, Integer position) {
 //        Toast.makeText(this, "(MainActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
 
-        mTrackPlayerService.loadTracks(mArtistName, tracks);
+        mTrackPlayerService.loadTracks(mArtistQueryString, mSelectedArtist, tracks);
         mTrackPlayerService.setCurrentTrackPosition(position);
+        mTrackPlayerService.unloadTrack();
         mTrackPlayerService.playPauseTrack();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -80,7 +119,7 @@ public class MainActivity extends ActionBarActivity
             trackPlayerActivityFragment = new TrackPlayerActivityFragment();
         }
 
-        trackPlayerActivityFragment.setValues(mArtistName, tracks, position);
+        trackPlayerActivityFragment.setValues(mSelectedArtist.name, tracks, position);
 
         if( mDualPane ) {
             trackPlayerActivityFragment.show(fragmentManager, "dialog");
@@ -98,18 +137,23 @@ public class MainActivity extends ActionBarActivity
             mDualPane = false;
         }
 
-//        if ( savedInstanceState != null ) {
-//
-//            MainActivityFragment mainActivityFragment;
-//            mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mainActivityFragment");
-//
-//            mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-//
-//            FragmentManager fm = getSupportFragmentManager();
-//            FragmentTransaction fragmentTransaction = fm.beginTransaction();
-//            fragmentTransaction.replace(R.id.fragment, mainActivityFragment);
-//            fragmentTransaction.commit();
-//        }
+        if ( savedInstanceState != null ) {
+
+            if ( mDualPane ) {
+
+                TrackActivityFragment tracksActivityFragment;
+
+                FragmentManager fm = getSupportFragmentManager();
+
+                tracksActivityFragment = (TrackActivityFragment) fm.getFragment(savedInstanceState, "tracksActivityFragment");
+
+                FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                fragmentTransaction.replace(R.id.track_list_container, tracksActivityFragment);
+                fragmentTransaction.commit();
+
+            }
+
+        }
 
         // Start up service
         // bind - so we can call its methods
@@ -119,9 +163,47 @@ public class MainActivity extends ActionBarActivity
 
         startService(intent);
 
+        intent = getIntent();
+
+        if ( mDualPane ) {
+
+            if ( intent != null & intent.hasExtra("artist") & savedInstanceState == null ) {
+
+                String artistQueryString = intent.getStringExtra("artistQueryString");
+                LocalArtist artist = (LocalArtist) intent.getParcelableExtra("artist");
+                LocalTrack track = (LocalTrack) intent.getParcelableExtra("track");
+
+                Toast.makeText(this, "Started by notification (artist = " + artist.name + ", query = " + artistQueryString + ")", Toast.LENGTH_SHORT)
+                        .show();
+
+                MainActivityFragment mainActivityFragment;
+                mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+                mainActivityFragment.setValues(artistQueryString, artist.id);
+
+                onArtistSelected(artistQueryString, artist);
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+
+                // TODO fix this - unneeded parameters(?)
+                ArrayList<LocalTrack> tracks = new ArrayList<>();
+                tracks.add(track);
+                trackPlayerActivityFragment.setValues(mArtistName, tracks, 0);
+
+                trackPlayerActivityFragment.show(fragmentManager, "dialog");
+
+//                trackPlayerActivityFragment.requestUiUpdate();
+
+            }
+
+        }
+
     }
 
-    public void onArtistSelected(LocalArtist localArtist) {
+    public void onArtistSelected(String queryString, LocalArtist localArtist) {
+
+        mArtistQueryString = queryString;
+        mSelectedArtist = localArtist;
 
         if (mDualPane) {
 
@@ -143,11 +225,11 @@ public class MainActivity extends ActionBarActivity
                 fragmentTransaction.commit();
             }
 
-            String id = localArtist.id;
-            mArtistName = localArtist.name;
+//            String id = localArtist.id;
+//            mArtistName = localArtist.name;
 
-            if ( id != null && mArtistName != null ) {
-                tracksActivityFragment.setValues(id, mArtistName);
+            if ( mSelectedArtist.id != null && mSelectedArtist.name != null ) {
+                tracksActivityFragment.setValues(mSelectedArtist.id, mSelectedArtist.name);
                 TrackFrameLayout trackFrameLayout = (TrackFrameLayout) findViewById(R.id.track_list_container);
 
                 if (localArtist.artistImages.size() > 0) {
@@ -164,9 +246,11 @@ public class MainActivity extends ActionBarActivity
         } else {
 
             Intent intent = new Intent(this, TrackActivity.class);
-            intent.putExtra("id", localArtist.id);
-            intent.putExtra("artist", localArtist.name);
-            intent.putExtra("image", localArtist.getLargestImageUrl());
+            intent.putExtra("id", mSelectedArtist.id);
+            intent.putExtra("artist", mSelectedArtist);
+            // TODO Need to pull this extra (artistQueryString) in phone activity
+            intent.putExtra("artistQueryString", mArtistQueryString);
+            intent.putExtra("image", mSelectedArtist.getLargestImageUrl());
 
             startActivity(intent);
 
@@ -176,6 +260,15 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        TrackActivityFragment tracksActivityFragment;
+
+        FragmentManager fm = getSupportFragmentManager();
+        tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
+
+        if ( tracksActivityFragment != null ) {
+            getSupportFragmentManager().putFragment(outState, "tracksActivityFragment", tracksActivityFragment);
+        }
 
 //        MainActivityFragment mainActivityFragment;
 //        mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
@@ -219,8 +312,10 @@ public class MainActivity extends ActionBarActivity
         mTrackPlayerService.playPauseTrack();
     }
 
-    private TrackPlayerService mTrackPlayerService;
-    private Boolean mBound = false;
+    @Override
+    public void onRequestUiUpdate() {
+        mTrackPlayerService.requestUiUpdate();
+    }
 
     @Override
     protected void onStop() {
@@ -239,6 +334,8 @@ public class MainActivity extends ActionBarActivity
             TrackPlayerService.LocalBinder binder = (TrackPlayerService.LocalBinder) service;
             mTrackPlayerService = binder.getService();
             mBound = true;
+
+            mTrackPlayerService.requestUiUpdate();
 
 //            mTrackPlayerService.loadTracks(tracks);
 //            mTrackPlayerService.setCurrentTrackPosition(currentTrackPosition);
@@ -272,8 +369,11 @@ public class MainActivity extends ActionBarActivity
             FragmentManager fragmentManager = getSupportFragmentManager();
             TrackPlayerActivityFragment trackPlayerActivityFragment = (TrackPlayerActivityFragment) fragmentManager.findFragmentByTag("dialog");
 
+            // If there no trackPlayerActivytFragment -> nothing to update
             if ( trackPlayerActivityFragment == null ) {
-                trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+                return;
+//                trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+
             }
 
             String action = intent.getAction();

@@ -9,6 +9,7 @@ import java.util.ArrayList;
  * Created by John on 7/3/2015.
  */
 public class LocalArtist implements Parcelable {
+    // TODO Make these private and user getters/setters
     public String id;
     public String name;
     public String url;
