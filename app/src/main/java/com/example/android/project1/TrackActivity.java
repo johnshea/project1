@@ -251,6 +251,11 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         mTrackPlayerService.requestUiUpdate();
     }
 
+    @Override
+    public void setCurrentTrackPosition(int currentTrackPosition) {
+        mTrackPlayerService.seekTo(currentTrackPosition);
+    }
+
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {

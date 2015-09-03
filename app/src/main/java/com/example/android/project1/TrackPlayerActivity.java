@@ -58,4 +58,10 @@ public class TrackPlayerActivity extends ActionBarActivity implements TrackPlaye
     public void onRequestUiUpdate() {
 
     }
+
+    @Override
+    public void setCurrentTrackPosition(int currentTrackPosition) {
+
+    }
+
 }

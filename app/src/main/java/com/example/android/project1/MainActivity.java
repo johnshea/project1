@@ -141,15 +141,56 @@ public class MainActivity extends ActionBarActivity
 
             if ( mDualPane ) {
 
+                mArtistQueryString = savedInstanceState.getString("artistQueryString");
+                mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
+
                 TrackActivityFragment tracksActivityFragment;
 
                 FragmentManager fm = getSupportFragmentManager();
 
                 tracksActivityFragment = (TrackActivityFragment) fm.getFragment(savedInstanceState, "tracksActivityFragment");
 
-                FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                fragmentTransaction.replace(R.id.track_list_container, tracksActivityFragment);
-                fragmentTransaction.commit();
+                if ( tracksActivityFragment != null ) {
+                    FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                    fragmentTransaction.replace(R.id.track_list_container, tracksActivityFragment);
+                    fragmentTransaction.commit();
+                }
+
+
+//                TrackPlayerActivityFragment trackPlayerActivityFragment;
+//
+//                trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.getFragment(savedInstanceState, "dialog");
+
+//                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//
+//                if ( trackPlayerActivityFragment != null ) {
+//                    trackPlayerActivityFragment.show(ft, "dialog");
+////                    fragmentTransaction = fm.beginTransaction();
+////                    fragmentTransaction.replace(R.id.track_list_container, trackPlayerActivityFragment, "dialog");
+////                    fragmentTransaction.commit();
+//                }
+
+//                FragmentManager fragmentManager = getSupportFragmentManager();
+//                TrackPlayerActivityFragment trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.getFragment(savedInstanceState, "dialog");
+
+//                if ( trackPlayerActivityFragment != null ) {
+//                    TrackPlayerActivityFragment newDialogFragment = new TrackPlayerActivityFragment();
+//                    newDialogFragment.show(getSupportFragmentManager(), "dialog");
+////                    fragmentTransaction = fm.beginTransaction();
+////                    fragmentTransaction.replace(R.id.track_list_container, trackPlayerActivityFragment, "dialog");
+////                    fragmentTransaction.commit();
+//                }
+
+//                if ( trackPlayerActivityFragment != null ) {
+//                    // TODO fix this - unneeded parameters(?)
+//                    ArrayList<LocalTrack> tracks = new ArrayList<>();
+////                    tracks.add();
+//                    trackPlayerActivityFragment.setValues(mArtistName, tracks, 0);
+//
+//                    trackPlayerActivityFragment.show(fragmentManager, "dialog");
+//                }
+
+
 
             }
 
@@ -261,6 +302,9 @@ public class MainActivity extends ActionBarActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
+        outState.putString("artistQueryString", mArtistQueryString);
+        outState.putParcelable("mSelectedArtist", mSelectedArtist);
+
         TrackActivityFragment tracksActivityFragment;
 
         FragmentManager fm = getSupportFragmentManager();
@@ -269,6 +313,14 @@ public class MainActivity extends ActionBarActivity
         if ( tracksActivityFragment != null ) {
             getSupportFragmentManager().putFragment(outState, "tracksActivityFragment", tracksActivityFragment);
         }
+
+//        TrackPlayerActivityFragment trackPlayerActivityFragment;
+//
+//        trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.findFragmentByTag("dialog");
+//
+//        if ( trackPlayerActivityFragment != null ) {
+//            getSupportFragmentManager().putFragment(outState, "dialog", trackPlayerActivityFragment);
+//        }
 
 //        MainActivityFragment mainActivityFragment;
 //        mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
@@ -315,6 +367,11 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onRequestUiUpdate() {
         mTrackPlayerService.requestUiUpdate();
+    }
+
+    @Override
+    public void setCurrentTrackPosition(int currentTrackPosition) {
+        mTrackPlayerService.seekTo(currentTrackPosition);
     }
 
     @Override

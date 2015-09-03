@@ -28,7 +28,7 @@ import java.util.ArrayList;
 public class TrackPlayerActivityFragment extends DialogFragment implements View.OnClickListener,
 SeekBar.OnSeekBarChangeListener {
 
-    private final String LOG_TAG = TrackActivityFragment.class.getSimpleName();
+    private final String LOG_TAG = TrackPlayerActivityFragment.class.getSimpleName();
 
     private TrackPlayerActivityListener mCallback;
 
@@ -72,25 +72,21 @@ SeekBar.OnSeekBarChangeListener {
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-        // TODO Moved service code to activity - need to refactor this
-//        if ( mTrackPlayerService.isTrackLoaded() ) {
-//            if ( !mTrackPlayerService.isTrackPaused() ) {
-//                mPausedBySeekBarMove = true;
-//                mTrackPlayerService.playPauseTrack();
-//            }
-//        }
+
+        if ( mMoveSeekBarThread != null ) {
+            mMoveSeekBarThread.interrupt();
+            mMoveSeekBarThread = null;
+        }
+
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        // TODO Moved service code to activity - need to refactor this
-//        if ( mTrackPlayerService.isTrackLoaded() ) {
-//            mTrackPlayerService.seekTo(seekBar.getProgress());
-//            if ( mPausedBySeekBarMove ) {
-//                mPausedBySeekBarMove = false;
-//                mTrackPlayerService.playPauseTrack();
-//            }
-//        }
+
+        int currentPosition = seekBar.getProgress();
+
+        mCallback.setCurrentTrackPosition(currentPosition);
+        mCallback.onRequestUiUpdate();
     }
 
     public interface TrackPlayerActivityListener {
@@ -98,17 +94,23 @@ SeekBar.OnSeekBarChangeListener {
         public void onClickPreviousTrack();
         public void onClickPlayPauseTrack();
         public void onRequestUiUpdate();
+        public void setCurrentTrackPosition(int currentTrackPosition);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         outState.putParcelable("localTrack", localTrack);
+        outState.putString("artistName", artistName);
+        outState.putParcelableArrayList("tracks", tracks);
+        outState.putInt("currentTrackPosition", currentTrackPosition);
 
         final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
         outState.putInt("duration", seekBar.getMax());
         outState.putInt("currentPosition", seekBar.getProgress());
         outState.putBoolean("isPlaying", mIsPlaying);
+
     }
 
     @Override
@@ -141,6 +143,11 @@ SeekBar.OnSeekBarChangeListener {
         seekBarTrackPosition.setOnSeekBarChangeListener(this);
 
         if ( savedInstanceState != null ) {
+
+            artistName = savedInstanceState.getString("artistName");
+            tracks = savedInstanceState.getParcelableArrayList("tracks");
+            currentTrackPosition = savedInstanceState.getInt("currentTrackPosition");
+
             localTrack = savedInstanceState.getParcelable("localTrack");
 
             final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
@@ -168,7 +175,17 @@ SeekBar.OnSeekBarChangeListener {
         TextView trackPlayerTrackName = (TextView) getView().findViewById(R.id.trackPlayerTrackName);
 
         trackPlayerArtistName.setText(artistName);
-        trackPlayerAlbumName.setText(localTrack.albumName);
+
+        if ( localTrack != null ) {
+            if (localTrack.albumName != null) {
+                trackPlayerAlbumName.setText(localTrack.albumName);
+            }
+
+            if (localTrack.trackName != null) {
+                trackPlayerTrackName.setText(localTrack.trackName);
+            }
+        }
+
         Picasso.with(getActivity())
                 .load(localTrack.getLargestImageUrl())
                 .resize(600, 600)
@@ -176,7 +193,7 @@ SeekBar.OnSeekBarChangeListener {
                 .placeholder(R.drawable.no_album)
                 .into(trackPlayerAlbumArtwork);
 
-        trackPlayerTrackName.setText(localTrack.trackName);
+
 
     }
 
@@ -241,7 +258,7 @@ SeekBar.OnSeekBarChangeListener {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
 //        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_track_player, menu);
     }
@@ -311,6 +328,12 @@ SeekBar.OnSeekBarChangeListener {
 
     public void requestUiUpdate() {
         mCallback.onRequestUiUpdate();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Override

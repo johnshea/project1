@@ -41,6 +41,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     int mCurrentPosition;
     boolean mIsMediaPlayerPrepared;
     boolean mIsPaused;
+    private boolean mJustLoadTrack = false;
 
     public class LocalBinder extends Binder {
         public TrackPlayerService getService() {
@@ -57,20 +58,44 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     @Override
     public void onPrepared(final MediaPlayer mediaPlayer) {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mediaPlayer.start();
-            }
-        }, "Thread_MediaPlayer").start();
+        if ( mJustLoadTrack ) {
 
-        mIsPlaying = true;
-        mIsTrackPlaying = true;
-        mIsPaused = false;
-        mIsMediaPlayerPrepared = true;
-        mDuration = mediaPlayer.getDuration();
+            mIsPlaying = false;
+            mIsTrackPlaying = false;
+            mIsPaused = true;
+            mIsMediaPlayerPrepared = true;
+            mDuration = mediaPlayer.getDuration();
 
-        //        TODO This code is used for optional components - commenting out now while working on required functionality
+            mJustLoadTrack = false;
+
+        } else {
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    mediaPlayer.start();
+                }
+            }, "Thread_MediaPlayer").start();
+
+            mIsPlaying = true;
+            mIsTrackPlaying = true;
+            mIsPaused = false;
+            mIsMediaPlayerPrepared = true;
+            mDuration = mediaPlayer.getDuration();
+
+            buildNotification("PLAY");
+
+            Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, true)
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mediaPlayer.getDuration())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mediaPlayer.getCurrentPosition());
+
+            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
+        }
+
+
+            //        TODO This code is used for optional components - commenting out now while working on required functionality
 //        // Trying to get to stay in foreground
 //        Notification notification = new Notification.Builder(this)
 //                .setSmallIcon(R.drawable.ic_action_play)
@@ -84,17 +109,10 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 //        startForeground(808, notification);
 //        //
 
-        buildNotification("PLAY");
 
-        Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
-                .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, true)
-                .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mediaPlayer.getDuration())
-                .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mediaPlayer.getCurrentPosition());
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
 //        Log.d(LOG_TAG, "Current position: " + mediaPlayer.getCurrentPosition());
-    }
+        }
 
     public void playSong(String url) {
         mMediaPlayer = new MediaPlayer();
@@ -149,6 +167,15 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mCurrentTrackPosition--;
         }
 
+        if ( !isTrackLoaded() ) {
+            loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
+
+            mJustLoadTrack = true;
+            mMediaPlayer.prepareAsync();
+
+
+        }
+
 //        TODO This code is used for optional components - commenting out now while working on required functionality
 //        Notification notification = new Notification.Builder(this)
 //                .setSmallIcon(R.drawable.ic_action_play)
@@ -179,6 +206,14 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         if ( mCurrentTrackPosition < (tracks.size() - 1) ) {
             mCurrentTrackPosition++;
+        }
+
+        if ( !isTrackLoaded() ) {
+            loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
+
+            mJustLoadTrack = true;
+            mMediaPlayer.prepareAsync();
+
         }
 
         //        TODO This code is used for optional components - commenting out now while working on required functionality
