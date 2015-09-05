@@ -105,7 +105,6 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void OnTrackSelected(ArrayList<LocalTrack> tracks, Integer position) {
-//        Toast.makeText(this, "(MainActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
 
         mTrackPlayerService.loadTracks(mArtistQueryString, mSelectedArtist, tracks);
         mTrackPlayerService.setCurrentTrackPosition(position);
@@ -143,37 +142,6 @@ public class MainActivity extends ActionBarActivity
 
                 mArtistQueryString = savedInstanceState.getString("artistQueryString");
                 mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
-
-//                FragmentManager fm = getSupportFragmentManager();
-//
-//                TrackPlayerActivityFragment trackPlayerActivityFragment;
-//
-//                trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.getFragment(savedInstanceState, "dialog");
-//
-//                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-//                if ( trackPlayerActivityFragment != null ) {
-//
-//                    // This is a work around for a known bug with a DialogFragment not being properly
-//                    // recreated on rotation.  I decided to save out the DialogFragment values
-//                    // and create a new Dialogfragment as a temporary solution.
-//                    //
-//                    // https://code.google.com/p/android/issues/detail?id=17423
-//                    //
-//                    //  Issue 17423:	DialogFragment dismissed on orientation change
-//                    //  when setRetainInstance(true) is set (compatibility library)
-//                    String tempArtistName = trackPlayerActivityFragment.getArtistName();
-//                    ArrayList<LocalTrack> tempTracks = trackPlayerActivityFragment.getTracks();
-//                    Integer tempPosition = trackPlayerActivityFragment.getCurrentTrackPosition();
-//
-//                    ft.remove(trackPlayerActivityFragment);
-//
-//                    TrackPlayerActivityFragment tp = new TrackPlayerActivityFragment();
-//                    tp.setValues(tempArtistName, tempTracks, tempPosition);
-//                    tp.show(fm, "dialog");
-//
-//                    ft.commit();
-//                }
 
             }
 
@@ -288,16 +256,6 @@ public class MainActivity extends ActionBarActivity
         outState.putString("artistQueryString", mArtistQueryString);
         outState.putParcelable("mSelectedArtist", mSelectedArtist);
 
-//        FragmentManager fm = getSupportFragmentManager();
-//
-//        TrackPlayerActivityFragment trackPlayerActivityFragment;
-//
-//        trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.findFragmentByTag("dialog");
-//
-//        if ( trackPlayerActivityFragment != null ) {
-//            getSupportFragmentManager().putFragment(outState, "dialog", trackPlayerActivityFragment);
-//        }
-
    }
 
     @Override
@@ -367,18 +325,6 @@ public class MainActivity extends ActionBarActivity
 
             mTrackPlayerService.requestUiUpdate();
 
-//            mTrackPlayerService.loadTracks(tracks);
-//            mTrackPlayerService.setCurrentTrackPosition(currentTrackPosition);
-
-//            if ( mTrackPlayerService.isTrackLoaded() ) {
-//                final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
-//                seekBar.setMax(mTrackPlayerService.getDuration());
-//
-//                RunnableProgress r = new RunnableProgress(seekBar);
-//
-//                mMoveSeekBarThread = new Thread(r, "Thread_mMoveSeekBarThread");
-//                mMoveSeekBarThread.start();
-//            }
         }
 
         @Override
@@ -395,15 +341,12 @@ public class MainActivity extends ActionBarActivity
 
         @Override
         public void onReceive(Context context, Intent intent) {
-//            Toast.makeText(context, "move next - Track image changed", Toast.LENGTH_SHORT).show();
             FragmentManager fragmentManager = getSupportFragmentManager();
             TrackPlayerActivityFragment trackPlayerActivityFragment = (TrackPlayerActivityFragment) fragmentManager.findFragmentByTag("dialog");
 
-            // If there no trackPlayerActivytFragment -> nothing to update
+            // If there is no trackPlayerActivityFragment -> nothing to update
             if ( trackPlayerActivityFragment == null ) {
                 return;
-//                trackPlayerActivityFragment = new TrackPlayerActivityFragment();
-
             }
 
             String action = intent.getAction();

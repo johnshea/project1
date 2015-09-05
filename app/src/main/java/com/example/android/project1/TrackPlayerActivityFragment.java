@@ -220,11 +220,6 @@ SeekBar.OnSeekBarChangeListener {
     @Override
     public void onClick(View v) {
 
-//        StringBuilder buttonMessage = new StringBuilder();
-
-//        ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
-//        final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
-
         final SeekBar seekBar = (SeekBar) getView().findViewById(R.id.seekBar);
 
         switch (v.getId()) {
@@ -266,7 +261,7 @@ SeekBar.OnSeekBarChangeListener {
                 break;
 
             default:
-//                buttonMessage.append("Unknown");
+
                 break;
         }
 
@@ -348,7 +343,6 @@ SeekBar.OnSeekBarChangeListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setRetainInstance(true);
     }
 
     @Override
@@ -381,8 +375,7 @@ SeekBar.OnSeekBarChangeListener {
                 if ( Thread.interrupted() ) {
                     return;
                 }
-//                    seekBar.setProgress(mTrackPlayerService.getCurrentPosition());
-//                    Log.d(LOG_TAG, "getCurrentPosition: " + mTrackPlayerService.getCurrentPosition());
+
                 try {
                     Thread.sleep(sleepTimeInMilliseconds);
                 } catch (Exception e) {

@@ -140,12 +140,9 @@ public class TrackActivityFragment extends Fragment {
         tracksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
-//                startActivity(intent);
 
                 intCurrentTrack = position;
 
-//                mCallback.OnTrackSelected(tracksArrayList.get(intCurrentTrack));
                 mCallback.OnTrackSelected(tracksArrayList, intCurrentTrack);
             }
         });
