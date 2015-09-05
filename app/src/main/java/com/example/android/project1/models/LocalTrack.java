@@ -1,11 +1,14 @@
 package com.example.android.project1.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by John on 7/3/2015.
  */
-public class LocalTrack {
+public class LocalTrack implements Parcelable {
     public String albumName;
     public String trackName;
     public ArrayList<LocalImage> albumImages;
@@ -13,6 +16,43 @@ public class LocalTrack {
 
     private Integer smallestImageIndex;
     private Integer largestImageIndex;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(albumName);
+        dest.writeString(trackName);
+        dest.writeTypedList(albumImages);
+        dest.writeString(preview_url);
+        dest.writeInt(smallestImageIndex);
+        dest.writeInt(largestImageIndex);
+    }
+
+    private LocalTrack(Parcel in) {
+        albumName = in.readString();
+        trackName = in.readString();
+        albumImages = in.createTypedArrayList(LocalImage.CREATOR);
+        preview_url = in.readString();
+        smallestImageIndex = in.readInt();
+        largestImageIndex = in.readInt();
+    }
+
+    public static final Parcelable.Creator<LocalTrack> CREATOR =
+            new Parcelable.Creator<LocalTrack>() {
+                @Override
+                public LocalTrack createFromParcel(Parcel source) {
+                    return new LocalTrack(source);
+                }
+
+                @Override
+                public LocalTrack[] newArray(int size) {
+                    return new LocalTrack[size];
+                }
+            };
 
     public LocalTrack(String albumName, String trackName, ArrayList<LocalImage> albumImages, String preview_url) {
         this.albumName = albumName;

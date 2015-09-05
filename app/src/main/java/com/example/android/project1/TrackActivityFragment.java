@@ -1,5 +1,6 @@
 package com.example.android.project1;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -35,18 +37,50 @@ import kaaes.spotify.webapi.android.models.Tracks;
  */
 public class TrackActivityFragment extends Fragment {
 
+    private OnTrackSelectedListener mCallback;
+
     private final String LOG_TAG = TrackActivityFragment.class.getSimpleName();
 
     private ListView tracksListView;
     private ArrayList<LocalTrack> tracksArrayList;
-    private ArrayAdapter<Tracks> tracksAdapter;
+//    private ArrayAdapter<Tracks> tracksAdapter;
 
     private String id;
     private String artist;
 
+    private int intCurrentTrack;
+
+    public interface OnTrackSelectedListener {
+        void OnTrackSelected(ArrayList<LocalTrack> tracks, Integer position);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("tracksArrayList", tracksArrayList);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnTrackSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnTrackSelected");
+        }
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        if ( savedInstanceState != null ) {
+            tracksArrayList = savedInstanceState.getParcelableArrayList("tracksArrayList");
+        }
 
         if ( tracksArrayList == null ){
             new DownloadTracks().execute(id);
@@ -103,12 +137,36 @@ public class TrackActivityFragment extends Fragment {
 
         tracksListView = (ListView) rootView.findViewById(R.id.listview_tracks);
 
+        tracksListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                intCurrentTrack = position;
+
+                mCallback.OnTrackSelected(tracksArrayList, intCurrentTrack);
+            }
+        });
+
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         if ( actionBar != null ) {
             actionBar.setSubtitle(artist);
         }
 
         return rootView;
+    }
+
+    public LocalTrack getNextTrack() {
+        if ( intCurrentTrack < (tracksArrayList.size() - 1) ) {
+            intCurrentTrack++;
+        }
+        return tracksArrayList.get(intCurrentTrack);
+    }
+
+    public LocalTrack getPreviousTrack() {
+        if ( intCurrentTrack > 0 ) {
+            intCurrentTrack--;
+        }
+        return tracksArrayList.get(intCurrentTrack);
     }
 
     static class ViewHolder {
@@ -182,7 +240,7 @@ public class TrackActivityFragment extends Fragment {
             try {
                 results = spotify.getArtistTopTrack(artistId, optionsMap);
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
+                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage());
             }
 
             return results;

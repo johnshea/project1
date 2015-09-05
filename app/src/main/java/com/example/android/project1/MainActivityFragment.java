@@ -41,17 +41,23 @@ public class MainActivityFragment extends Fragment {
 
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
-    private ArrayAdapter<String> artistAdapter;
+//    private ArrayAdapter<String> artistAdapter;
     private ArrayList<LocalArtist> artistsArrayList;
+    private int mPosition = -1;
+    private String mArtistId = "";
     private ListView listView;
+    private String mQueryString = "";
 
     public interface OnArtistSelectedListener {
-        public void onArtistSelected(LocalArtist localArtist);
+        void onArtistSelected(String queryString, LocalArtist localArtist);
+        void onArtistSearchChanged();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("artistsArrayList", artistsArrayList);
+        outState.putInt("position", mPosition);
     }
 
     @Override
@@ -89,6 +95,52 @@ public class MainActivityFragment extends Fragment {
 
         artistsArrayList = new ArrayList<LocalArtist>();
 
+        if ( savedInstanceState != null ) {
+//            artistsArrayList = savedInstanceState.getParcelableArrayList("artistsArrayList");
+            artistsArrayList = savedInstanceState.getParcelableArrayList("artistsArrayList");
+            mPosition = savedInstanceState.getInt("position", -1);
+
+            ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
+
+            listView.setAdapter(adapter);
+
+        }
+
+        final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                LocalArtist selectedArtist;
+
+                // TODO this should be artistAdapter.getItem..see lesson 3 - 5th session
+                selectedArtist = artistsArrayList.get(position);
+                mPosition = position;
+
+                mCallback.onArtistSelected(mQueryString, selectedArtist);
+
+            }
+        });
+
+    }
+
+    public void setValues(String artistQueryString, String artistId) {
+        final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
+        artistQuery.setText(artistQueryString);
+
+        mQueryString = artistQueryString;
+        mArtistId = artistId;
+
+        if ( !mQueryString.isEmpty() ) {
+            new DownloadArtists().execute(mQueryString);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
 
         artistQuery.addTextChangedListener(new TextWatcher() {
@@ -99,14 +151,14 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                mCallback.onArtistSearchChanged();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                String query = artistQuery.getText().toString();
-                if ( !query.isEmpty() ) {
-                    new DownloadArtists().execute(query);
+                mQueryString = artistQuery.getText().toString();
+                if (!mQueryString.isEmpty()) {
+                    new DownloadArtists().execute(mQueryString);
                 } else {
 
                     artistsArrayList.clear();
@@ -114,20 +166,6 @@ public class MainActivityFragment extends Fragment {
 
                     listView.setAdapter(adapter);
                 }
-            }
-        });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                LocalArtist selectedArtist;
-
-                // TODO this should be artistAdapter.getItem..see lesson 3 - 5th session
-                selectedArtist = artistsArrayList.get(position);
-
-                mCallback.onArtistSelected(selectedArtist);
-
             }
         });
 
@@ -147,7 +185,7 @@ public class MainActivityFragment extends Fragment {
                     results = spotify.searchArtists(params[0]);
                 }
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage().toString());
+                Log.e(LOG_TAG, "Spotify exception - " + e.getMessage());
             }
 
             return results;
@@ -157,6 +195,8 @@ public class MainActivityFragment extends Fragment {
         protected void onPostExecute(ArtistsPager results) {
 
             artistsArrayList = new ArrayList<LocalArtist>();
+
+            int position = -1;
 
             if ( results != null) {
 
@@ -174,6 +214,14 @@ public class MainActivityFragment extends Fragment {
 
             }
 
+            for(int i = 0; i < artistsArrayList.size(); i++) {
+                LocalArtist artist = artistsArrayList.get(i);
+                if ( artist.id.equals(mArtistId) ) {
+                    position = i;
+                    break;
+                }
+            }
+
             if ( getActivity() != null ) {
 
                 final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
@@ -181,6 +229,11 @@ public class MainActivityFragment extends Fragment {
                 if ( !artistQuery.getText().toString().equals("") ) {
                     ArtistsAdapter adapter = new ArtistsAdapter(getActivity(), artistsArrayList);
                     listView.setAdapter(adapter);
+
+                    if ( position != -1 ) {
+                        listView.setSelection(position);
+                    }
+
                 } else {
                     listView.setAdapter(null);
                 }
