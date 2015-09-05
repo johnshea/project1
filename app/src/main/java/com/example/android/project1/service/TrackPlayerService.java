@@ -350,7 +350,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
         }
 
-        if ( mIsTrackLoaded && !mIsMediaPlayerPrepared ) {
+        if ( mIsTrackLoaded && !mIsMediaPlayerPrepared && !mJustLoadTrack) {
             mMediaPlayer.prepareAsync();
         }
 

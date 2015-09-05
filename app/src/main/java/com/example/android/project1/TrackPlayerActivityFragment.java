@@ -48,6 +48,21 @@ SeekBar.OnSeekBarChangeListener {
 
     private boolean mPausedBySeekBarMove = false;
 
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public LocalTrack getLocalTrack() {
+        return localTrack;
+    }
+
+    public ArrayList<LocalTrack> getTracks() {
+        return tracks;
+    }
+
+    public Integer getCurrentTrackPosition() {
+        return currentTrackPosition;
+    }
 
     @Override
     public void onStart() {
@@ -333,7 +348,7 @@ SeekBar.OnSeekBarChangeListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+//        setRetainInstance(true);
     }
 
     @Override
@@ -379,12 +394,15 @@ SeekBar.OnSeekBarChangeListener {
 
                 final int value = mCurrentSeekbarPosition;
 
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mSeekBar.setProgress(value);
-                    }
-                });
+                if ( getActivity() != null ) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mSeekBar.setProgress(value);
+                        }
+                    });
+
+                }
 
             }
         }

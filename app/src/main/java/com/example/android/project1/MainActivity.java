@@ -144,53 +144,36 @@ public class MainActivity extends ActionBarActivity
                 mArtistQueryString = savedInstanceState.getString("artistQueryString");
                 mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
 
-                TrackActivityFragment tracksActivityFragment;
-
-                FragmentManager fm = getSupportFragmentManager();
-
-                tracksActivityFragment = (TrackActivityFragment) fm.getFragment(savedInstanceState, "tracksActivityFragment");
-
-                if ( tracksActivityFragment != null ) {
-                    FragmentTransaction fragmentTransaction = fm.beginTransaction();
-                    fragmentTransaction.replace(R.id.track_list_container, tracksActivityFragment);
-                    fragmentTransaction.commit();
-                }
-
-
+//                FragmentManager fm = getSupportFragmentManager();
+//
 //                TrackPlayerActivityFragment trackPlayerActivityFragment;
 //
 //                trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.getFragment(savedInstanceState, "dialog");
-
+//
 //                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+//                if ( trackPlayerActivityFragment != null ) {
 //
-//                if ( trackPlayerActivityFragment != null ) {
-//                    trackPlayerActivityFragment.show(ft, "dialog");
-////                    fragmentTransaction = fm.beginTransaction();
-////                    fragmentTransaction.replace(R.id.track_list_container, trackPlayerActivityFragment, "dialog");
-////                    fragmentTransaction.commit();
-//                }
-
-//                FragmentManager fragmentManager = getSupportFragmentManager();
-//                TrackPlayerActivityFragment trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.getFragment(savedInstanceState, "dialog");
-
-//                if ( trackPlayerActivityFragment != null ) {
-//                    TrackPlayerActivityFragment newDialogFragment = new TrackPlayerActivityFragment();
-//                    newDialogFragment.show(getSupportFragmentManager(), "dialog");
-////                    fragmentTransaction = fm.beginTransaction();
-////                    fragmentTransaction.replace(R.id.track_list_container, trackPlayerActivityFragment, "dialog");
-////                    fragmentTransaction.commit();
-//                }
-
-//                if ( trackPlayerActivityFragment != null ) {
-//                    // TODO fix this - unneeded parameters(?)
-//                    ArrayList<LocalTrack> tracks = new ArrayList<>();
-////                    tracks.add();
-//                    trackPlayerActivityFragment.setValues(mArtistName, tracks, 0);
+//                    // This is a work around for a known bug with a DialogFragment not being properly
+//                    // recreated on rotation.  I decided to save out the DialogFragment values
+//                    // and create a new Dialogfragment as a temporary solution.
+//                    //
+//                    // https://code.google.com/p/android/issues/detail?id=17423
+//                    //
+//                    //  Issue 17423:	DialogFragment dismissed on orientation change
+//                    //  when setRetainInstance(true) is set (compatibility library)
+//                    String tempArtistName = trackPlayerActivityFragment.getArtistName();
+//                    ArrayList<LocalTrack> tempTracks = trackPlayerActivityFragment.getTracks();
+//                    Integer tempPosition = trackPlayerActivityFragment.getCurrentTrackPosition();
 //
-//                    trackPlayerActivityFragment.show(fragmentManager, "dialog");
+//                    ft.remove(trackPlayerActivityFragment);
+//
+//                    TrackPlayerActivityFragment tp = new TrackPlayerActivityFragment();
+//                    tp.setValues(tempArtistName, tempTracks, tempPosition);
+//                    tp.show(fm, "dialog");
+//
+//                    ft.commit();
 //                }
-
-
 
             }
 
@@ -305,15 +288,8 @@ public class MainActivity extends ActionBarActivity
         outState.putString("artistQueryString", mArtistQueryString);
         outState.putParcelable("mSelectedArtist", mSelectedArtist);
 
-        TrackActivityFragment tracksActivityFragment;
-
-        FragmentManager fm = getSupportFragmentManager();
-        tracksActivityFragment = (TrackActivityFragment) fm.findFragmentByTag("track");
-
-        if ( tracksActivityFragment != null ) {
-            getSupportFragmentManager().putFragment(outState, "tracksActivityFragment", tracksActivityFragment);
-        }
-
+//        FragmentManager fm = getSupportFragmentManager();
+//
 //        TrackPlayerActivityFragment trackPlayerActivityFragment;
 //
 //        trackPlayerActivityFragment = (TrackPlayerActivityFragment) fm.findFragmentByTag("dialog");
@@ -322,10 +298,7 @@ public class MainActivity extends ActionBarActivity
 //            getSupportFragmentManager().putFragment(outState, "dialog", trackPlayerActivityFragment);
 //        }
 
-//        MainActivityFragment mainActivityFragment;
-//        mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-//        getSupportFragmentManager().putFragment(outState, "mainActivityFragment", mainActivityFragment);
-    }
+   }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
