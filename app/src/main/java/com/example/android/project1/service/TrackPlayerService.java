@@ -256,6 +256,16 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     @Override
     public void onCompletion(MediaPlayer mp) {
         mIsPlaying = false;
+        mIsPaused = true;
+        mIsTrackPlaying = false;
+
+        Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mp.isPlaying())
+                .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mp.getDuration())
+                .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mp.getDuration());
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
     }
 
 //    public Boolean isPlaying() {
