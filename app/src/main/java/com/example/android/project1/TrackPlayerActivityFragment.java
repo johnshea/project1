@@ -325,13 +325,19 @@ SeekBar.OnSeekBarChangeListener {
         seekBar.setMax(trackDuration);
         seekBar.setProgress(currentTrackPosition);
 
+        final ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
+
         if ( isPlaying ) {
+
+            btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_pause);
 
             RunnableProgress r = new RunnableProgress(seekBar, currentTrackPosition);
 
             mMoveSeekBarThread = new Thread(r, "Thread_mMoveSeekBarThread");
             mMoveSeekBarThread.start();
 
+        } else {
+            btnPlayPauseTrack.setImageResource(android.R.drawable.ic_media_play);
         }
 
     }
