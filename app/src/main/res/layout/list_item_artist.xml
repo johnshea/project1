@@ -10,16 +10,18 @@
 
     <ImageView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/touch_selector"
         android:id="@+id/imageView_artistImage"
-        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
         android:layout_weight="10"/>
 
     <TextView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/touch_selector"
         android:text="New Text"
         android:id="@+id/textView_artistName"
-        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
         android:layout_weight="25"/>
 </com.example.android.project1.ArtistLinearLayout>

@@ -141,6 +141,13 @@ public class MainActivityFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
+        listView.post(new Runnable() {
+            @Override
+            public void run() {
+                listView.smoothScrollToPositionFromTop(mPosition, 0);
+            }
+        });
+
         final EditText artistQuery = (EditText) getView().findViewById(R.id.edittext_artist_query);
 
         artistQuery.addTextChangedListener(new TextWatcher() {
