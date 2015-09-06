@@ -69,6 +69,16 @@ public class MainActivity extends ActionBarActivity
                 mServiceStatusReceiver,
                 mStatusIntentFilter);
 
+        final ActionBar actionBar = this.getSupportActionBar();
+        if ( actionBar != null && mSelectedArtist != null ) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    actionBar.setSubtitle(mSelectedArtist.name);
+                }
+            });
+        }
+
     }
 
     @Override

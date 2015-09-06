@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +41,8 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putParcelable("mSelectedArtist", mSelectedArtist);
 
         TrackActivityFragment tracksActivityFragment;
 
@@ -101,6 +104,16 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                 mServiceStatusReceiver,
                 mStatusIntentFilter);
 
+        final ActionBar actionBar = this.getSupportActionBar();
+        if ( actionBar != null && mSelectedArtist != null ) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    actionBar.setSubtitle(mSelectedArtist.name);
+                }
+            });
+        }
+
     }
 
     @Override
@@ -150,6 +163,8 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         startService(serviIntent);
 
         if ( savedInstanceState != null ) {
+
+            mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
 
             FragmentManager fm = getSupportFragmentManager();
 
