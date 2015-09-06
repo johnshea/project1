@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -154,6 +155,24 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track);
 
+        final ActionBar actionBar = this.getSupportActionBar();
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+
+                if ( actionBar != null && mSelectedArtist != null ) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            actionBar.setSubtitle(mSelectedArtist.name);
+                        }
+                    });
+                }
+
+            }
+        });
+
         // Start up service
         // bind - so we can call its methods
         // startService - so it stays around indefinitely
@@ -238,9 +257,18 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch ( id ) {
+            case android.R.id.home:
+                int count = getSupportFragmentManager().getBackStackEntryCount();
+                if ( getSupportFragmentManager().getBackStackEntryCount() > 0 ) {
+                    getSupportFragmentManager().popBackStack();
+                    return true;
+                } else {
+                    NavUtils.navigateUpFromSameTask(this);
+                }
+                break;
+            case R.id.action_settings:
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
