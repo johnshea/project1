@@ -12,23 +12,27 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView_albumImage"
         android:layout_gravity="center_vertical"
+        android:background="@drawable/touch_selector"
         android:layout_weight="10"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@drawable/touch_selector"
         android:layout_weight="25"
         android:weightSum="4"
         android:paddingLeft="10dp">
 
         <View
             android:layout_width="match_parent"
+            android:background="@drawable/touch_selector"
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
         <TextView
             android:layout_width="match_parent"
+            android:background="@drawable/touch_selector"
             android:layout_height="0dp"
             android:text="Track Name"
             android:id="@+id/textView_trackName"
@@ -36,6 +40,7 @@
 
         <TextView
             android:layout_width="match_parent"
+            android:background="@drawable/touch_selector"
             android:layout_height="0dp"
             android:text="Album Name"
             android:id="@+id/textView_albumName"
@@ -43,6 +48,7 @@
 
         <View
             android:layout_width="match_parent"
+            android:background="@drawable/touch_selector"
             android:layout_height="0dp"
             android:layout_weight="1"/>
 

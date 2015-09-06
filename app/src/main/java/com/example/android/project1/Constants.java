@@ -11,6 +11,9 @@ public final class Constants {
     public static final String EXTENDED_DATA_STATUS =
             "com.example.android.project1.STATUS";
 
+    public static final String EXTENDED_DATA_TRACK_CURRENT =
+            "com.example.android.project1.EXTENDED_DATA_TRACK_CURRENT";
+
     public static final String EXTENDED_DATA_STATUS_ARTIST_NAME =
             "com.example.android.project1.STATUS_ARTIST_NAME";
 

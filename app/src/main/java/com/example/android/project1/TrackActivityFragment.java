@@ -58,6 +58,19 @@ public class TrackActivityFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList("tracksArrayList", tracksArrayList);
+        outState.putInt("position", intCurrentTrack);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        tracksListView.post(new Runnable() {
+            @Override
+            public void run() {
+                tracksListView.smoothScrollToPositionFromTop(intCurrentTrack, 0);
+            }
+        });
     }
 
     @Override
@@ -80,6 +93,7 @@ public class TrackActivityFragment extends Fragment {
 
         if ( savedInstanceState != null ) {
             tracksArrayList = savedInstanceState.getParcelableArrayList("tracksArrayList");
+            intCurrentTrack = savedInstanceState.getInt("position", 0);
         }
 
         if ( tracksArrayList == null ){
@@ -98,12 +112,24 @@ public class TrackActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setRetainInstance(true);
     }
 
     public void setData(ArrayList<LocalTrack> data) {
         this.tracksArrayList = data;
+    }
+
+    public void setTrackPosition(int currentTrackPosition) {
+
+        final int position = currentTrackPosition;
+
+        intCurrentTrack = position;
+
+        tracksListView.post(new Runnable() {
+            @Override
+            public void run() {
+                tracksListView.setItemChecked(position, true);
+            }
+        });
     }
 
     public void setValues(String id, String artist) {

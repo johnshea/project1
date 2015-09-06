@@ -142,6 +142,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
             Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                     .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT, mCurrentTrackPosition)
                     .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
 
             LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
@@ -195,6 +196,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT, mCurrentTrackPosition)
                 .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
@@ -236,6 +238,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT, mCurrentTrackPosition)
                 .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);

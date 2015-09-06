@@ -360,6 +360,15 @@ public class MainActivity extends ActionBarActivity
 //            trackPlayerActivityFragment.updateImage(intent.getStringExtra(Constants.EXTENDED_DATA_STATUS));
                     trackPlayerActivityFragment.updateViews(artistName, localTrack);
 
+                    TrackActivityFragment tracksActivityFragment;
+
+                    tracksActivityFragment = (TrackActivityFragment) fragmentManager.findFragmentByTag("track");
+
+                    if ( tracksActivityFragment != null ) {
+                        int currentTrack = intent.getIntExtra(Constants.EXTENDED_DATA_TRACK_CURRENT,0);
+                        tracksActivityFragment.setTrackPosition(currentTrack);
+                    }
+
                     break;
 
 //                case Constants.BROADCAST_ACTION_TRACK_STARTED:
