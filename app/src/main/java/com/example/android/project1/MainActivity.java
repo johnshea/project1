@@ -1,11 +1,15 @@
 package com.example.android.project1;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
@@ -37,6 +41,7 @@ public class MainActivity extends ActionBarActivity
 
     private TrackPlayerService mTrackPlayerService;
     private Boolean mBound = false;
+    private Boolean mNoNetworkConnectivity = false;
 
     @Override
     protected void onPause() {
@@ -51,6 +56,27 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Display alert dialog about needing network connectivity
+        if ( mNoNetworkConnectivity ) {
+
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+            alertDialogBuilder.setTitle(getString(R.string.network_missing_title));
+            alertDialogBuilder.setMessage(getString(R.string.network_missing_message));
+
+            alertDialogBuilder.setPositiveButton(getString(R.string.button_message_positive), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+
+            AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
+
+            // TODO Shutdown app because network connectivity is missing
+
+        }
 
         // Set-up receiver
         IntentFilter mStatusIntentFilter = new IntentFilter(
@@ -140,66 +166,82 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (findViewById(R.id.track_list_container) != null) {
-            mDualPane = true;
+        // Check for network connectivity
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if ( !isConnected ) {
+
+            mNoNetworkConnectivity = true;
+
         } else {
-            mDualPane = false;
-        }
 
-        if ( savedInstanceState != null ) {
+            mNoNetworkConnectivity = false;
 
-            if ( mDualPane ) {
+            if (findViewById(R.id.track_list_container) != null) {
+                mDualPane = true;
+            } else {
+                mDualPane = false;
+            }
 
-                mArtistQueryString = savedInstanceState.getString("artistQueryString");
-                mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
+            if (savedInstanceState != null) {
+
+                if (mDualPane) {
+
+                    mArtistQueryString = savedInstanceState.getString("artistQueryString");
+                    mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
+
+                }
 
             }
 
-        }
+            // Start up service
+            // bind - so we can call its methods
+            // startService - so it stays around indefinitely
+            Intent intent = new Intent(this, TrackPlayerService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-        // Start up service
-        // bind - so we can call its methods
-        // startService - so it stays around indefinitely
-        Intent intent = new Intent(this, TrackPlayerService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            startService(intent);
 
-        startService(intent);
+            intent = getIntent();
 
-        intent = getIntent();
+            if (mDualPane) {
 
-        if ( mDualPane ) {
+                if (intent != null & intent.hasExtra("artist") & savedInstanceState == null) {
 
-            if ( intent != null & intent.hasExtra("artist") & savedInstanceState == null ) {
+                    String artistQueryString = intent.getStringExtra("artistQueryString");
+                    LocalArtist artist = (LocalArtist) intent.getParcelableExtra("artist");
+                    LocalTrack track = (LocalTrack) intent.getParcelableExtra("track");
 
-                String artistQueryString = intent.getStringExtra("artistQueryString");
-                LocalArtist artist = (LocalArtist) intent.getParcelableExtra("artist");
-                LocalTrack track = (LocalTrack) intent.getParcelableExtra("track");
+                    Toast.makeText(this, "Started by notification (artist = " + artist.name + ", query = " + artistQueryString + ")", Toast.LENGTH_SHORT)
+                            .show();
 
-                Toast.makeText(this, "Started by notification (artist = " + artist.name + ", query = " + artistQueryString + ")", Toast.LENGTH_SHORT)
-                        .show();
+                    MainActivityFragment mainActivityFragment;
+                    mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+                    mainActivityFragment.setValues(artistQueryString, artist.id);
 
-                MainActivityFragment mainActivityFragment;
-                mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-                mainActivityFragment.setValues(artistQueryString, artist.id);
+                    onArtistSelected(artistQueryString, artist);
 
-                onArtistSelected(artistQueryString, artist);
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
 
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+                    // TODO fix this - unneeded parameters(?)
+                    ArrayList<LocalTrack> tracks = new ArrayList<>();
+                    tracks.add(track);
+                    trackPlayerActivityFragment.setValues(mArtistName, tracks, 0);
 
-                // TODO fix this - unneeded parameters(?)
-                ArrayList<LocalTrack> tracks = new ArrayList<>();
-                tracks.add(track);
-                trackPlayerActivityFragment.setValues(mArtistName, tracks, 0);
-
-                trackPlayerActivityFragment.show(fragmentManager, "dialog");
+                    trackPlayerActivityFragment.show(fragmentManager, "dialog");
 
 //                trackPlayerActivityFragment.requestUiUpdate();
 
+                }
+
             }
-
         }
-
     }
 
     public void onArtistSelected(String queryString, LocalArtist localArtist) {

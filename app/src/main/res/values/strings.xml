@@ -9,4 +9,7 @@
     <string name="title_activity_track_player">TrackPlayerActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_play">Now Playing</string>
+    <string name="network_missing_title">Network Not Found</string>
+    <string name="network_missing_message">A network is needed to use this application.\n\nPlease restore connectivity and try again.\n\nTODO Gracefully shutdown app.</string>
+    <string name="button_message_positive">OK</string>
 </resources>
