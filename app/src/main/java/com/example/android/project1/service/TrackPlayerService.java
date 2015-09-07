@@ -42,6 +42,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     boolean mIsMediaPlayerPrepared;
     boolean mIsPaused;
     private boolean mJustLoadTrack = false;
+    private boolean mCompletedPlaying = false;
 
     public class LocalBinder extends Binder {
         public TrackPlayerService getService() {
@@ -65,6 +66,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mIsPaused = true;
             mIsMediaPlayerPrepared = true;
             mDuration = mediaPlayer.getDuration();
+            mCompletedPlaying = false;
 
             mJustLoadTrack = false;
 
@@ -82,6 +84,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mIsPaused = false;
             mIsMediaPlayerPrepared = true;
             mDuration = mediaPlayer.getDuration();
+            mCompletedPlaying = false;
 
             buildNotification("PLAY");
 
@@ -147,10 +150,21 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
             LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
+            int temporaryCurrentPosition;
+
+            // There is a known mediaPlayer bug where the currentPosition returned
+            // is not accurate.  This is a temporary workaround for when the track
+            // finishes playing.
+            if ( mCompletedPlaying ) {
+                temporaryCurrentPosition = mMediaPlayer.getDuration();
+            } else {
+                temporaryCurrentPosition = mMediaPlayer.getCurrentPosition();
+            }
+
             localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
                     .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mMediaPlayer.isPlaying())
                     .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mMediaPlayer.getDuration())
-                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, mMediaPlayer.getCurrentPosition())
+                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, temporaryCurrentPosition)
                     .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
                     .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);;
 
@@ -261,6 +275,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         mIsPlaying = false;
         mIsPaused = true;
         mIsTrackPlaying = false;
+        mCompletedPlaying = true;
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
                 .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mp.isPlaying())
@@ -308,6 +323,10 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         this.mCurrentTrackPosition = mCurrentTrackPosition;
     }
 
+    public LocalTrack getCurrentTrack() {
+        return tracks.get(mCurrentPosition);
+    }
+
 //    public void setupTrack() {
 //        this.unloadTrack();
 //        this.loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
@@ -346,6 +365,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             mIsPaused = false;
             mIsTrackLoaded = false;
             mIsMediaPlayerPrepared = false;
+            mCompletedPlaying = false;
         }
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
@@ -521,6 +541,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     public void seekTo(int newPosition) {
+        mCompletedPlaying = false;
         mMediaPlayer.seekTo(newPosition);
     }
 }
