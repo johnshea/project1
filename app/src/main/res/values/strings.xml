@@ -12,4 +12,7 @@
     <string name="network_missing_title">Network Not Found</string>
     <string name="network_missing_message">A network is needed to use this application.\n\nPlease restore connectivity and try again.\n\nTODO Gracefully shutdown app.</string>
     <string name="button_message_positive">OK</string>
+    <string name="share_subject">Check out this track!</string>
+    <string name="share_message">I am listening to \"%1$s\" by %2$s. (%3$s)</string>
+    <string name="share_message_temp">I am using my Spotify Streamer 2 app.</string>
 </resources>

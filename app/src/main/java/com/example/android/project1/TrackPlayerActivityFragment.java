@@ -195,6 +195,7 @@ SeekBar.OnSeekBarChangeListener {
     public void onDetach() {
         super.onDetach();
         mCallback.showActionBarPlayingButton(true);
+        mCallback.onRequestUiUpdate();
     }
 
     private void populateViews() {

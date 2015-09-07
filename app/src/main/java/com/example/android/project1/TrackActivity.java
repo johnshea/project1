@@ -12,8 +12,10 @@ import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -38,8 +40,14 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
     private MenuItem mIsPlayingMenuItem;
     private Boolean mShowNowPlayingButton = false;
 
-//    private TrackActivityFragment.OnTrackSelectedListener mCallback;
+    private ShareActionProvider mShareActionProvider;
+    private MenuItem mShareMenuItem;
 
+    private void setShareIntent(Intent shareIntent) {
+        if ( mShareActionProvider != null ) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -128,7 +136,6 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         mTrackPlayerService.unloadTrack();
         mTrackPlayerService.playPauseTrack();
 
-
 //        Toast.makeText(this, "(TrackActivity) Track selected: " + localTrack.trackName.toString(), Toast.LENGTH_SHORT).show();
 
         TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
@@ -158,6 +165,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                 public void run() {
                     if ( mIsPlayingMenuItem != null && actionBar != null) {
                         mIsPlayingMenuItem.setVisible(isButtonVisible);
+                        mShareMenuItem.setVisible(isButtonVisible);
                         actionBar.invalidateOptionsMenu();
                     }
                 }
@@ -276,6 +284,19 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         getMenuInflater().inflate(R.menu.menu_track, menu);
         mIsPlayingMenuItem = menu.findItem(R.id.action_play);
         mIsPlayingMenuItem.setVisible(mShowNowPlayingButton);
+
+        // Optional Component - Sharing Functionality
+        mShareMenuItem = menu.findItem(R.id.menu_item_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(mShareMenuItem);
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.share_message_temp));
+        intent.setType("text/plain");
+        setShareIntent(intent);
+
+        mShareMenuItem.setVisible(mShowNowPlayingButton);
+
         return true;
     }
 
@@ -321,6 +342,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                 mTrackPlayerService.requestUiUpdate();
 
                 mIsPlayingMenuItem.setVisible(false);
+                mShareMenuItem.setVisible(false);
 
                 return true;
 
@@ -397,13 +419,6 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
             FragmentManager fragmentManager = getSupportFragmentManager();
             TrackPlayerActivityFragment trackPlayerActivityFragment = (TrackPlayerActivityFragment) fragmentManager.findFragmentByTag("dialog");
 
-            // If there no trackPlayerActivytFragment -> nothing to update
-            if ( trackPlayerActivityFragment == null ) {
-                return;
-//                trackPlayerActivityFragment = new TrackPlayerActivityFragment();
-
-            }
-
             String action = intent.getAction();
             int trackDuration;
 
@@ -412,7 +427,23 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
 
                     String artistName = intent.getStringExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME);
                     LocalTrack localTrack = (LocalTrack) intent.getParcelableExtra(Constants.EXTENDED_DATA_STATUS);
-//            trackPlayerActivityFragment.updateImage(intent.getStringExtra(Constants.EXTENDED_DATA_STATUS));
+
+                    // Setup shareintent
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
+
+                    String shareMessage = String.format(getString(R.string.share_message), localTrack.trackName, artistName, localTrack.preview_url);
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+
+                    shareIntent.setType("text/plain");
+                    setShareIntent(shareIntent);
+
+                    // If there no trackPlayerActivytFragment -> nothing to update
+                    if ( trackPlayerActivityFragment == null ) {
+                        return;
+                    }
+
                     trackPlayerActivityFragment.updateViews(artistName, localTrack);
 
                     TrackActivityFragment tracksActivityFragment;
@@ -438,6 +469,11 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                     boolean isPlaying = intent.getBooleanExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, false);
                     trackDuration = intent.getIntExtra(Constants.EXTENDED_DATA_TRACK_DURATION, 30);
                     int currentTrackPosition = intent.getIntExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, 0);
+
+                    // If there is no trackPlayerActivityFragment -> nothing to update
+                    if ( trackPlayerActivityFragment == null ) {
+                        return;
+                    }
 
                     trackPlayerActivityFragment.updateSeekbar(isPlaying, trackDuration, currentTrackPosition);
 
