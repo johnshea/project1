@@ -1,5 +1,6 @@
 package com.example.android.project1;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +11,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -35,6 +35,8 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
     ServiceStatusReceiver mServiceStatusReceiver;
     private TrackPlayerService mTrackPlayerService;
     private Boolean mBound = false;
+    private MenuItem mIsPlayingMenuItem;
+    private Boolean mShowNowPlayingButton = false;
 
 //    private TrackActivityFragment.OnTrackSelectedListener mCallback;
 
@@ -44,6 +46,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         super.onSaveInstanceState(outState);
 
         outState.putParcelable("mSelectedArtist", mSelectedArtist);
+        outState.putBoolean("showButton", mShowNowPlayingButton);
 
         TrackActivityFragment tracksActivityFragment;
 
@@ -141,6 +144,28 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
 
     }
 
+    @Override
+    public void showActionBarPlayingButton(boolean showButton) {
+
+        mShowNowPlayingButton = showButton;
+
+        final boolean isButtonVisible = showButton;
+
+        final ActionBar actionBar = this.getSupportActionBar();
+        if ( actionBar != null && mSelectedArtist != null ) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if ( mIsPlayingMenuItem != null && actionBar != null) {
+                        mIsPlayingMenuItem.setVisible(isButtonVisible);
+                        actionBar.invalidateOptionsMenu();
+                    }
+                }
+            });
+        }
+
+    }
+
     private TrackActivityFragment tracksActivityFragment;
 
     private String id;
@@ -184,6 +209,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         if ( savedInstanceState != null ) {
 
             mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
+            mShowNowPlayingButton = savedInstanceState.getBoolean("showButton");
 
             FragmentManager fm = getSupportFragmentManager();
 
@@ -227,6 +253,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
             mSelectedArtist = intent.getParcelableExtra("artist");
             String imageUrl = intent.getStringExtra("image");
             mArtistQueryString = intent.getStringExtra("artistQueryString");
+            mShowNowPlayingButton = intent.getBooleanExtra("showButton", false);
 
             if ( mSelectedArtist.id != null && mSelectedArtist.name != null ) {
                 tracksActivityFragment.setValues(mSelectedArtist.id, mSelectedArtist.name);
@@ -247,6 +274,8 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_track, menu);
+        mIsPlayingMenuItem = menu.findItem(R.id.action_play);
+        mIsPlayingMenuItem.setVisible(mShowNowPlayingButton);
         return true;
     }
 
@@ -264,9 +293,37 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                     getSupportFragmentManager().popBackStack();
                     return true;
                 } else {
-                    NavUtils.navigateUpFromSameTask(this);
+                    Intent intent = new Intent();
+                    boolean showButton = mIsPlayingMenuItem.isVisible();
+                    intent.putExtra("showButton", showButton);
+                    setResult(Activity.RESULT_OK, intent);
+                    finish();
                 }
                 break;
+
+            case R.id.action_play:
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+
+                LocalTrack track = mTrackPlayerService.getCurrentTrack();
+
+                ArrayList<LocalTrack> tracks = new ArrayList<>();
+                tracks.add(track);
+
+                trackPlayerActivityFragment.setValues(mSelectedArtist.name, tracks, 0);
+
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                fragmentTransaction.replace(R.id.track_list_container, trackPlayerActivityFragment, "dialog")
+                        .addToBackStack(null)
+                        .commit();
+
+                mTrackPlayerService.requestUiUpdate();
+
+                mIsPlayingMenuItem.setVisible(false);
+
+                return true;
+
             case R.id.action_settings:
                 return true;
         }

@@ -110,6 +110,7 @@ SeekBar.OnSeekBarChangeListener {
         public void onClickPlayPauseTrack();
         public void onRequestUiUpdate();
         public void setCurrentTrackPosition(int currentTrackPosition);
+        public void showActionBarPlayingButton(boolean showButton);
     }
 
     @Override
@@ -147,6 +148,8 @@ SeekBar.OnSeekBarChangeListener {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        mCallback.showActionBarPlayingButton(false);
+
         ImageButton btnPreviousTrack = (ImageButton) getView().findViewById(R.id.btnPrevTrack);
         ImageButton btnPlayPauseTrack = (ImageButton) getView().findViewById(R.id.btnPlayPauseTrack);
         ImageButton btnNextTrack = (ImageButton) getView().findViewById(R.id.btnNextTrack);
@@ -182,6 +185,18 @@ SeekBar.OnSeekBarChangeListener {
 
     }
 
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        mCallback.showActionBarPlayingButton(true);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mCallback.showActionBarPlayingButton(true);
+    }
+
     private void populateViews() {
 
         TextView trackPlayerArtistName = (TextView) getView().findViewById(R.id.trackPlayerArtistName);
@@ -199,16 +214,17 @@ SeekBar.OnSeekBarChangeListener {
             if (localTrack.trackName != null) {
                 trackPlayerTrackName.setText(localTrack.trackName);
             }
+
+            if ( localTrack.getLargestImageUrl() != null ) {
+                Picasso.with(getActivity())
+                        .load(localTrack.getLargestImageUrl())
+                        .resize(600, 600)
+                        .centerInside()
+                        .placeholder(R.drawable.no_album)
+                        .into(trackPlayerAlbumArtwork);
+
+            }
         }
-
-        Picasso.with(getActivity())
-                .load(localTrack.getLargestImageUrl())
-                .resize(600, 600)
-                .centerInside()
-                .placeholder(R.drawable.no_album)
-                .into(trackPlayerAlbumArtwork);
-
-
 
     }
 

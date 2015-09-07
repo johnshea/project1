@@ -54,6 +54,10 @@ public class LocalTrack implements Parcelable {
                 }
             };
 
+    public LocalTrack() {
+
+    }
+
     public LocalTrack(String albumName, String trackName, ArrayList<LocalImage> albumImages, String preview_url) {
         this.albumName = albumName;
         this.trackName = trackName;

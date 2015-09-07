@@ -64,4 +64,9 @@ public class TrackPlayerActivity extends ActionBarActivity implements TrackPlaye
 
     }
 
+    @Override
+    public void showActionBarPlayingButton(boolean showButton) {
+
+    }
+
 }

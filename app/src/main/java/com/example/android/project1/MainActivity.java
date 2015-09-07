@@ -42,6 +42,8 @@ public class MainActivity extends ActionBarActivity
     private TrackPlayerService mTrackPlayerService;
     private Boolean mBound = false;
     private Boolean mNoNetworkConnectivity = false;
+    private MenuItem mIsPlayingMenuItem;
+    private Boolean mShowNowPlayingButton = false;
 
     @Override
     protected void onPause() {
@@ -101,6 +103,26 @@ public class MainActivity extends ActionBarActivity
                 @Override
                 public void run() {
                     actionBar.setSubtitle(mSelectedArtist.name);
+                }
+            });
+        }
+
+    }
+
+    @Override
+    public void showActionBarPlayingButton(boolean showButton) {
+
+        final boolean isButtonVisible = showButton;
+
+        final ActionBar actionBar = this.getSupportActionBar();
+        if (actionBar != null && mIsPlayingMenuItem != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mIsPlayingMenuItem != null && actionBar != null) {
+                        mIsPlayingMenuItem.setVisible(isButtonVisible);
+                        actionBar.invalidateOptionsMenu();
+                    }
                 }
             });
         }
@@ -196,6 +218,8 @@ public class MainActivity extends ActionBarActivity
                     mSelectedArtist = (LocalArtist) savedInstanceState.getParcelable("mSelectedArtist");
 
                 }
+
+                mShowNowPlayingButton = savedInstanceState.getBoolean("showNowPlayingActionBarButton", false);
 
             }
 
@@ -294,11 +318,23 @@ public class MainActivity extends ActionBarActivity
             intent.putExtra("artist", mSelectedArtist);
             // TODO Need to pull this extra (artistQueryString) in phone activity
             intent.putExtra("artistQueryString", mArtistQueryString);
+            intent.putExtra("showButton", mShowNowPlayingButton);
             intent.putExtra("image", mSelectedArtist.getLargestImageUrl());
 
-            startActivity(intent);
+            startActivityForResult(intent, 1);
 
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if ( requestCode == 1 ) {
+            if ( resultCode == RESULT_OK ) {
+                mShowNowPlayingButton = data.getBooleanExtra("showButton", false);
+            }
+        }
+
     }
 
     @Override
@@ -307,6 +343,7 @@ public class MainActivity extends ActionBarActivity
 
         outState.putString("artistQueryString", mArtistQueryString);
         outState.putParcelable("mSelectedArtist", mSelectedArtist);
+        outState.putBoolean("showNowPlayingActionBarButton", mIsPlayingMenuItem.isVisible());
 
    }
 
@@ -314,6 +351,8 @@ public class MainActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        mIsPlayingMenuItem = menu.findItem(R.id.action_play);
+        mIsPlayingMenuItem.setVisible(mShowNowPlayingButton);
         return true;
     }
 
@@ -324,9 +363,29 @@ public class MainActivity extends ActionBarActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch ( id ) {
+            case R.id.action_settings:
+                return true;
+
+            case R.id.action_play:
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+
+                LocalTrack track = mTrackPlayerService.getCurrentTrack();
+
+                ArrayList<LocalTrack> tracks = new ArrayList<>();
+                tracks.add(track);
+
+                trackPlayerActivityFragment.setValues("", tracks, 0);
+
+                trackPlayerActivityFragment.show(fragmentManager, "dialog");
+
+                mTrackPlayerService.requestUiUpdate();
+
+                mIsPlayingMenuItem.setVisible(false);
+
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
