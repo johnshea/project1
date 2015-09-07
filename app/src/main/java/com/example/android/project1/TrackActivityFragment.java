@@ -2,8 +2,10 @@ package com.example.android.project1;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -49,6 +51,7 @@ public class TrackActivityFragment extends Fragment {
     private String artist;
 
     private int intCurrentTrack;
+    private String prefCountryCode;
 
     public interface OnTrackSelectedListener {
         void OnTrackSelected(ArrayList<LocalTrack> tracks, Integer position);
@@ -91,13 +94,17 @@ public class TrackActivityFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        prefCountryCode = sharedPref.getString("pref_country_code", "US");
+
         if ( savedInstanceState != null ) {
             tracksArrayList = savedInstanceState.getParcelableArrayList("tracksArrayList");
             intCurrentTrack = savedInstanceState.getInt("position", 0);
         }
 
         if ( tracksArrayList == null ){
-            new DownloadTracks().execute(id);
+            DownloadTracksParam downloadTracksParam = new DownloadTracksParam(id, prefCountryCode);
+            new DownloadTracks().execute(downloadTracksParam);
         } else {
             TracksAdapter tracksAdapter = new TracksAdapter(getActivity(), tracksArrayList);
 
@@ -132,7 +139,7 @@ public class TrackActivityFragment extends Fragment {
         });
     }
 
-    public void setValues(String id, String artist) {
+    public void setValues(String id, String artist, String countryCode) {
 
         Boolean artistIdChanged = false;
 
@@ -146,7 +153,8 @@ public class TrackActivityFragment extends Fragment {
         this.artist = artist;
 
         if ( artistIdChanged ) {
-            new DownloadTracks().execute(id);
+            DownloadTracksParam downloadTracksParam = new DownloadTracksParam(id, countryCode);
+            new DownloadTracks().execute(downloadTracksParam);
         }
 
     }
@@ -250,13 +258,24 @@ public class TrackActivityFragment extends Fragment {
 
     }
 
-    public class DownloadTracks extends AsyncTask<String, Void, Tracks> {
+    private static class DownloadTracksParam {
+        String artistId;
+        String countryCode;
+
+        DownloadTracksParam(String artistId, String countryCode) {
+            this.artistId = artistId;
+            this.countryCode = countryCode;
+        }
+    }
+
+    public class DownloadTracks extends AsyncTask<DownloadTracksParam, Void, Tracks> {
         @Override
-        protected Tracks doInBackground(String... params) {
-            String artistId = params[0];
+        protected Tracks doInBackground(DownloadTracksParam... params) {
+            String artistId = params[0].artistId;
+            String countryCode = params[0].countryCode;
 
             HashMap<String, Object> optionsMap = new HashMap<>();
-            optionsMap.put("country", "US");
+            optionsMap.put("country", countryCode);
 
             Tracks results = null;
 

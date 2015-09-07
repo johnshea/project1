@@ -29,6 +29,10 @@
             android:name=".TrackPlayerActivity"
             android:label="@string/title_activity_track_player" >
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="SettingsActivity" >
+        </activity>
         
         <service
             android:name=".service.TrackPlayerService"

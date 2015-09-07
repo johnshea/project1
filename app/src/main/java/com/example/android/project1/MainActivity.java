@@ -8,10 +8,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
@@ -299,11 +301,11 @@ public class MainActivity extends ActionBarActivity
                 fragmentTransaction.commit();
             }
 
-//            String id = localArtist.id;
-//            mArtistName = localArtist.name;
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+            String prefCountryCode = sharedPref.getString("pref_country_code", "US");
 
             if ( mSelectedArtist.id != null && mSelectedArtist.name != null ) {
-                tracksActivityFragment.setValues(mSelectedArtist.id, mSelectedArtist.name);
+                tracksActivityFragment.setValues(mSelectedArtist.id, mSelectedArtist.name, prefCountryCode);
                 TrackFrameLayout trackFrameLayout = (TrackFrameLayout) findViewById(R.id.track_list_container);
 
                 if (localArtist.artistImages.size() > 0) {
@@ -390,6 +392,10 @@ public class MainActivity extends ActionBarActivity
 
         switch ( id ) {
             case R.id.action_settings:
+
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+
                 return true;
 
             case R.id.action_play:
