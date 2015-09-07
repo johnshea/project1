@@ -18,7 +18,6 @@ import android.util.Log;
 
 import com.example.android.project1.Constants;
 import com.example.android.project1.MainActivity;
-import com.example.android.project1.R;
 import com.example.android.project1.models.LocalArtist;
 import com.example.android.project1.models.LocalTrack;
 import com.squareup.picasso.Picasso;
@@ -106,28 +105,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
 
-
-        // Optional component - Notifications
-
-        // Trying to get working with only player notification
-        // Trying to get to stay in foreground
-//        Notification notification = new Notification.Builder(this)
-//                .setSmallIcon(R.drawable.ic_action_play)
-//                .build();
-//        Intent notificationIntent = new Intent(this, MainActivity.class)
-//                .putExtra("artistQueryString", mArtistQueryString)
-//                .putExtra("artist", mSelectedArtist)
-//                .putExtra("track", tracks.get(mCurrentTrackPosition));
-//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 101, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        notification.setLatestEventInfo(getApplicationContext(), "Click To Launch Player", mSelectedArtist.name + " - " + tracks.get(mCurrentTrackPosition).trackName, pendingIntent);
-//        startForeground(808, notification);
-
-        //
-
-
-
-//        Log.d(LOG_TAG, "Current position: " + mediaPlayer.getCurrentPosition());
-        }
+    }
 
     public void playSong(String url) {
         mMediaPlayer = new MediaPlayer();
@@ -145,11 +123,6 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
     }
-
-//    public void pauseSong() {
-//        mIsPlaying = false;
-//        mMediaPlayer.pause();
-//    }
 
     public void requestUiUpdate() {
 
@@ -203,24 +176,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
 
-// Optional component - Notifications
-
-        // Trying to get working with only player notification
-//        Notification notification = new Notification.Builder(this)
-//                .setSmallIcon(R.drawable.ic_action_play)
-//                .build();
-//        Intent notificationIntent = new Intent(this, MainActivity.class)
-//                .putExtra("artistQueryString", mArtistQueryString)
-//                .putExtra("artist", mSelectedArtist)
-//                .putExtra("track", tracks.get(mCurrentTrackPosition));
-//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 101, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        notification.setLatestEventInfo(getApplicationContext(), "Click To Launch Player", mSelectedArtist.name + " - " + tracks.get(mCurrentTrackPosition).trackName, pendingIntent);
-//        startForeground(808, notification);
-
         buildNotification("PREV");
-
-//        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
-//                .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition).getLargestImageUrl());
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
@@ -246,24 +202,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
 
-        // Optional component - Notifications
-
-        // trying to get working wiht player notificaton
-//        Notification notification = new Notification.Builder(this)
-//                .setSmallIcon(R.drawable.ic_action_play)
-//                .build();
-//        Intent notificationIntent = new Intent(this, MainActivity.class)
-//                .putExtra("artistQueryString", mArtistQueryString)
-//                .putExtra("artist", mSelectedArtist)
-//                .putExtra("track", tracks.get(mCurrentTrackPosition));
-//        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 101, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        notification.setLatestEventInfo(getApplicationContext(), "Click To Launch Player", mSelectedArtist.name + " - " + tracks.get(mCurrentTrackPosition).trackName, pendingIntent);
-//        startForeground(808, notification);
-
         buildNotification("NEXT");
-
-//        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
-//                .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition).getLargestImageUrl());
 
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
@@ -272,18 +211,6 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
-
-//    public void restartPlayingSong() {
-//        mIsPlaying = true;
-//        mMediaPlayer.start();
-//    }
-
-//    public void stopSong() {
-//        mIsPlaying = false;
-//        mMediaPlayer.stop();
-//        mMediaPlayer.release();
-//        mMediaPlayer = null;
-//    }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
@@ -300,28 +227,6 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
     }
-
-//    public Boolean isPlaying() {
-//        return mIsPlaying;
-//    }
-
-//    public int getCurrentPosition() {
-//        return mMediaPlayer.getCurrentPosition();
-//    }
-
-//    public int getDuration() {
-//
-//        int result = 0;
-//
-//        if ( mIsMediaPlayerPrepared ) {
-//            result = mMediaPlayer.getDuration();
-//        } else {
-//            result = 30;
-//        }
-//
-//        return result;
-//
-//    }
 
     public void loadTracks(String artistQueryString, LocalArtist selectedArtist, ArrayList<LocalTrack> tracks) {
         try {
@@ -341,11 +246,6 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     public LocalTrack getCurrentTrack() {
         return tracks.get(mCurrentPosition);
     }
-
-//    public void setupTrack() {
-//        this.unloadTrack();
-//        this.loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
-//    }
 
     public void loadTrack(String url) {
 
@@ -433,83 +333,10 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
-//    public void pausePlayTrack() {
-//
-//    }
-
     private void buildNotification(String action) {
 
         // Optional component - Notifications
-//        Intent prevIntent = new Intent(this, TrackPlayerService.class);
-//        prevIntent.putExtra("action", "PREVIOUS");
-//
-//        Intent playPauseIntent = new Intent(this, TrackPlayerService.class);
-//        playPauseIntent.putExtra("action", "PLAYPAUSE");
-//
-//        Intent nextIntent = new Intent(this, TrackPlayerService.class);
-//        nextIntent.putExtra("action", "NEXT");
-//
-//        PendingIntent piPrevIntent = PendingIntent.getService(this, 0, prevIntent, 0);
-//        PendingIntent piPlayPauseIntent = PendingIntent.getService(this, 1, playPauseIntent, 0);
-//        PendingIntent piNextIntent = PendingIntent.getService(this, 2, nextIntent, 0);
-
-        String iconWording;
-        int iconId;
-
-        switch ( action ) {
-            case "PAUSE":
-                iconWording = "PLAY";
-                iconId = android.R.drawable.ic_media_play;
-                break;
-
-            case "PLAY":
-                iconWording = "PAUSE";
-                iconId = android.R.drawable.ic_media_pause;
-                break;
-
-            default:
-                iconWording = "PLAY";
-                iconId = android.R.drawable.ic_media_play;
-                break;
-        }
-
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Boolean prefShowonLockScreen = sharedPref.getBoolean("pref_show_on_lock_screen", false);
-
-        int visibilityLevel;
-
-        if ( prefShowonLockScreen ) {
-            visibilityLevel = Notification.VISIBILITY_PUBLIC;
-        } else {
-            visibilityLevel = Notification.VISIBILITY_PRIVATE;
-        }
-
-//        Intent startActivityIntent = new Intent(this, MainActivity.class)
-//                .putExtra("artistQueryString", mArtistQueryString)
-//                .putExtra("artist", mSelectedArtist)
-//                .putExtra("track", tracks.get(mCurrentTrackPosition));
-//        PendingIntent pendingStartActivityIntent = PendingIntent.getActivity(getApplicationContext(), 101, startActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        final Notification.Builder mBuilder =
-//                new Notification.Builder(this)
-//                        .setSmallIcon(R.drawable.no_album)
-//                        .setContentTitle("Now Playing")
-//                        .setContentText(tracks.get(mCurrentTrackPosition).trackName)
-//                        .setVisibility(visibilityLevel)
-//                        .setStyle(new Notification.MediaStyle())
-//                        .setContentIntent(pendingStartActivityIntent)
-//                        .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
-//                        .addAction(iconId, iconWording, piPlayPauseIntent)
-//                        .addAction(android.R.drawable.ic_media_next, "next", piNextIntent);
-//
-//            NotificationManager mNotificationManager =
-//                    (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
-//
-//            Notification n = mBuilder.build();
-//
-//            startForeground(888, n);
-
-        LoadImageAsyncTaskParams loadImageAsyncTaskParams = new LoadImageAsyncTaskParams(mSelectedArtist.getThumbnailUrl(), action, visibilityLevel);
+        LoadImageAsyncTaskParams loadImageAsyncTaskParams = new LoadImageAsyncTaskParams(mSelectedArtist.getThumbnailUrl(), action);
         new LoadImageAsyncTask().execute(loadImageAsyncTaskParams);
 
     }
@@ -517,38 +344,6 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     public boolean isTrackLoaded() {
         return mIsTrackLoaded;
     }
-
-//    public boolean isTrackPlaying() {
-//        return mIsTrackPlaying;
-//    }
-
-//    public boolean isTrackPaused() { return mIsPaused; }
-//
-//    public int getTrackLength() {
-//
-//        int result = -1;
-//
-//        if ( mIsTrackLoaded ) {
-//            result = mMediaPlayer.getDuration();
-//        } else {
-//            result = -1;
-//        }
-//
-//        return mDuration;
-//    }
-
-//    public int getTrackCurrentPosition() {
-//
-//        int result = 0;
-//
-//        if ( mIsMediaPlayerPrepared ) {
-//            result = mMediaPlayer.getCurrentPosition();
-//        } else {
-//            result = 0;
-//        }
-//
-//        return result;
-//    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -606,12 +401,10 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     private static class LoadImageAsyncTaskParams {
         String bitmapUrl;
         String action;
-        int visibilityLevel;
 
-        LoadImageAsyncTaskParams(String bitmapUrl, String action, int visibilityLevel) {
+        LoadImageAsyncTaskParams(String bitmapUrl, String action) {
             this.bitmapUrl = bitmapUrl;
             this.action = action;
-            this.visibilityLevel = visibilityLevel;
         }
     }
 
@@ -619,13 +412,11 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         String bitmapUrl;
         String action;
-        int visibilityLevel;
 
         @Override
         protected Bitmap doInBackground(LoadImageAsyncTaskParams... params) {
             bitmapUrl = params[0].bitmapUrl;
             action = params[0].action;
-            visibilityLevel = params[0].visibilityLevel;
 
             Bitmap b = null;
 
@@ -653,7 +444,6 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             PendingIntent piPrevIntent = PendingIntent.getService(getApplicationContext(), 0, prevIntent, 0);
             PendingIntent piPlayPauseIntent = PendingIntent.getService(getApplicationContext(), 1, playPauseIntent, 0);
             PendingIntent piNextIntent = PendingIntent.getService(getApplicationContext(), 2, nextIntent, 0);
-
 
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             Boolean prefShowonLockScreen = sharedPref.getBoolean("pref_show_on_lock_screen", false);
@@ -695,48 +485,33 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             Notification.Builder mPublicBuilder = null;
             Notification.Builder mPrivateBuilder = null;
 
-//            if ( prefShowonLockScreen ) {
+            mPublicBuilder =
+                    new Notification.Builder(getApplicationContext())
+                            .setSmallIcon(android.R.drawable.ic_media_play)
+                            .setLargeIcon(bitmap)
+                            .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
+                            .setContentText(mSelectedArtist.name)
+                            .setVisibility(Notification.VISIBILITY_PUBLIC)
+                            .setContentTitle(tracks.get(mCurrentTrackPosition).trackName)
+                            .setStyle(new Notification.MediaStyle())
+                            .setContentIntent(pendingStartActivityIntent);
 
-                mPublicBuilder =
-                        new Notification.Builder(getApplicationContext())
-                                .setSmallIcon(R.drawable.no_album)
-                                .setLargeIcon(bitmap)
-                                .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
-                                .setContentText(mSelectedArtist.name)
-                                .setVisibility(Notification.VISIBILITY_PUBLIC)
-                                .setContentTitle(tracks.get(mCurrentTrackPosition).trackName)
-                                .setStyle(new Notification.MediaStyle())
-                                .setContentIntent(pendingStartActivityIntent);
+            Notification publicNotification = mPublicBuilder.build();
 
-                Notification publicNotification = mPublicBuilder.build();
-
-                mPrivateBuilder =
-                        new Notification.Builder(getApplicationContext())
-                                .setSmallIcon(R.drawable.no_album)
-                                .setLargeIcon(bitmap)
-                                .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
-                                .setContentText(mSelectedArtist.name)
-                                .setVisibility(visibilityLevel)
-                                .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
-                                .addAction(iconId, iconWording, piPlayPauseIntent)
-                                .addAction(android.R.drawable.ic_media_next, "next", piNextIntent)
-                                .setStyle(new Notification.MediaStyle()
-                                        .setShowActionsInCompactView(0, 1, 2))
-                                .setContentIntent(pendingStartActivityIntent)
-                                .setPublicVersion(publicNotification);
-
-//            } else {
-//
-//                mPublicBuilder =
-//                        new Notification.Builder(getApplicationContext())
-//                                .setSmallIcon(R.drawable.no_album)
-//                                .setLargeIcon(bitmap)
-//                                .setContentTitle("Now Playing")
-//                                .setContentText(tracks.get(mCurrentTrackPosition).trackName)
-//                                .setVisibility(Notification.VISIBILITY_PUBLIC)
-//                                .setStyle(new Notification.MediaStyle())
-//                                .setContentIntent(pendingStartActivityIntent);
-//            }
+            mPrivateBuilder =
+                    new Notification.Builder(getApplicationContext())
+                            .setSmallIcon(android.R.drawable.ic_media_play)
+                            .setLargeIcon(bitmap)
+                            .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
+                            .setContentText(mSelectedArtist.name)
+                            .setVisibility(visibilityLevel)
+                            .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
+                            .addAction(iconId, iconWording, piPlayPauseIntent)
+                            .addAction(android.R.drawable.ic_media_next, "next", piNextIntent)
+                            .setStyle(new Notification.MediaStyle()
+                                    .setShowActionsInCompactView(0, 1, 2))
+                            .setContentIntent(pendingStartActivityIntent)
+                            .setPublicVersion(publicNotification);
 
             Notification n = mPrivateBuilder.build();
 
@@ -744,4 +519,5 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
     }
+
 }
