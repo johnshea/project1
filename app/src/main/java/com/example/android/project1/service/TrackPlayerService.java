@@ -1,18 +1,27 @@
 package com.example.android.project1.service;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.android.project1.Constants;
+import com.example.android.project1.MainActivity;
+import com.example.android.project1.R;
 import com.example.android.project1.models.LocalArtist;
 import com.example.android.project1.models.LocalTrack;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -98,8 +107,10 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
 
-            //        TODO This code is used for optional components - commenting out now while working on required functionality
-//        // Trying to get to stay in foreground
+        // Optional component - Notifications
+
+        // Trying to get working with only player notification
+        // Trying to get to stay in foreground
 //        Notification notification = new Notification.Builder(this)
 //                .setSmallIcon(R.drawable.ic_action_play)
 //                .build();
@@ -110,7 +121,8 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 //        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 101, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //        notification.setLatestEventInfo(getApplicationContext(), "Click To Launch Player", mSelectedArtist.name + " - " + tracks.get(mCurrentTrackPosition).trackName, pendingIntent);
 //        startForeground(808, notification);
-//        //
+
+        //
 
 
 
@@ -191,7 +203,9 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
 
-//        TODO This code is used for optional components - commenting out now while working on required functionality
+// Optional component - Notifications
+
+        // Trying to get working with only player notification
 //        Notification notification = new Notification.Builder(this)
 //                .setSmallIcon(R.drawable.ic_action_play)
 //                .build();
@@ -232,8 +246,9 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
 
-        //        TODO This code is used for optional components - commenting out now while working on required functionality
-//
+        // Optional component - Notifications
+
+        // trying to get working wiht player notificaton
 //        Notification notification = new Notification.Builder(this)
 //                .setSmallIcon(R.drawable.ic_action_play)
 //                .build();
@@ -424,9 +439,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
     private void buildNotification(String action) {
 
-        return;
-
-//        TODO This code is used for optional components - commenting out now while working on required functionality
+        // Optional component - Notifications
 //        Intent prevIntent = new Intent(this, TrackPlayerService.class);
 //        prevIntent.putExtra("action", "PREVIOUS");
 //
@@ -439,20 +452,65 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 //        PendingIntent piPrevIntent = PendingIntent.getService(this, 0, prevIntent, 0);
 //        PendingIntent piPlayPauseIntent = PendingIntent.getService(this, 1, playPauseIntent, 0);
 //        PendingIntent piNextIntent = PendingIntent.getService(this, 2, nextIntent, 0);
+
+        String iconWording;
+        int iconId;
+
+        switch ( action ) {
+            case "PAUSE":
+                iconWording = "PLAY";
+                iconId = android.R.drawable.ic_media_play;
+                break;
+
+            case "PLAY":
+                iconWording = "PAUSE";
+                iconId = android.R.drawable.ic_media_pause;
+                break;
+
+            default:
+                iconWording = "PLAY";
+                iconId = android.R.drawable.ic_media_play;
+                break;
+        }
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean prefShowonLockScreen = sharedPref.getBoolean("pref_show_on_lock_screen", false);
+
+        int visibilityLevel;
+
+        if ( prefShowonLockScreen ) {
+            visibilityLevel = Notification.VISIBILITY_PUBLIC;
+        } else {
+            visibilityLevel = Notification.VISIBILITY_PRIVATE;
+        }
+
+//        Intent startActivityIntent = new Intent(this, MainActivity.class)
+//                .putExtra("artistQueryString", mArtistQueryString)
+//                .putExtra("artist", mSelectedArtist)
+//                .putExtra("track", tracks.get(mCurrentTrackPosition));
+//        PendingIntent pendingStartActivityIntent = PendingIntent.getActivity(getApplicationContext(), 101, startActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 //
-//        final NotificationCompat.Builder mBuilder =
-//                new NotificationCompat.Builder(this)
+//        final Notification.Builder mBuilder =
+//                new Notification.Builder(this)
 //                        .setSmallIcon(R.drawable.no_album)
 //                        .setContentTitle("Now Playing")
 //                        .setContentText(tracks.get(mCurrentTrackPosition).trackName)
-//                        .setStyle(new NotificationCompat.BigTextStyle().bigText(tracks.get(mCurrentTrackPosition).trackName))
+//                        .setVisibility(visibilityLevel)
+//                        .setStyle(new Notification.MediaStyle())
+//                        .setContentIntent(pendingStartActivityIntent)
 //                        .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
-//                        .addAction(R.drawable.ic_action_play, action, piPlayPauseIntent)
+//                        .addAction(iconId, iconWording, piPlayPauseIntent)
 //                        .addAction(android.R.drawable.ic_media_next, "next", piNextIntent);
 //
-//        NotificationManager mNotificationManager =
-//                (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
-//        mNotificationManager.notify(0, mBuilder.build());
+//            NotificationManager mNotificationManager =
+//                    (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
+//
+//            Notification n = mBuilder.build();
+//
+//            startForeground(888, n);
+
+        LoadImageAsyncTaskParams loadImageAsyncTaskParams = new LoadImageAsyncTaskParams(mSelectedArtist.getThumbnailUrl(), action, visibilityLevel);
+        new LoadImageAsyncTask().execute(loadImageAsyncTaskParams);
 
     }
 
@@ -543,5 +601,147 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     public void seekTo(int newPosition) {
         mCompletedPlaying = false;
         mMediaPlayer.seekTo(newPosition);
+    }
+
+    private static class LoadImageAsyncTaskParams {
+        String bitmapUrl;
+        String action;
+        int visibilityLevel;
+
+        LoadImageAsyncTaskParams(String bitmapUrl, String action, int visibilityLevel) {
+            this.bitmapUrl = bitmapUrl;
+            this.action = action;
+            this.visibilityLevel = visibilityLevel;
+        }
+    }
+
+    private class LoadImageAsyncTask extends AsyncTask<LoadImageAsyncTaskParams, Void, Bitmap> {
+
+        String bitmapUrl;
+        String action;
+        int visibilityLevel;
+
+        @Override
+        protected Bitmap doInBackground(LoadImageAsyncTaskParams... params) {
+            bitmapUrl = params[0].bitmapUrl;
+            action = params[0].action;
+            visibilityLevel = params[0].visibilityLevel;
+
+            Bitmap b = null;
+
+            try {
+                b = Picasso.with(getApplicationContext()).load(bitmapUrl).get();
+            } catch (Exception e) {
+                Log.e("TrackPlayerService", "Unable to load large bitmap");
+            }
+
+            return b;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+
+            Intent prevIntent = new Intent(getApplicationContext(), TrackPlayerService.class);
+            prevIntent.putExtra("action", "PREVIOUS");
+
+            Intent playPauseIntent = new Intent(getApplicationContext(), TrackPlayerService.class);
+            playPauseIntent.putExtra("action", "PLAYPAUSE");
+
+            Intent nextIntent = new Intent(getApplicationContext(), TrackPlayerService.class);
+            nextIntent.putExtra("action", "NEXT");
+
+            PendingIntent piPrevIntent = PendingIntent.getService(getApplicationContext(), 0, prevIntent, 0);
+            PendingIntent piPlayPauseIntent = PendingIntent.getService(getApplicationContext(), 1, playPauseIntent, 0);
+            PendingIntent piNextIntent = PendingIntent.getService(getApplicationContext(), 2, nextIntent, 0);
+
+
+            SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            Boolean prefShowonLockScreen = sharedPref.getBoolean("pref_show_on_lock_screen", false);
+
+            int visibilityLevel;
+
+            if ( prefShowonLockScreen ) {
+                visibilityLevel = Notification.VISIBILITY_PUBLIC;
+            } else {
+                visibilityLevel = Notification.VISIBILITY_PRIVATE;
+            }
+
+            String iconWording;
+            int iconId;
+
+            switch ( action ) {
+                case "PAUSE":
+                    iconWording = "PLAY";
+                    iconId = android.R.drawable.ic_media_play;
+                    break;
+
+                case "PLAY":
+                    iconWording = "PAUSE";
+                    iconId = android.R.drawable.ic_media_pause;
+                    break;
+
+                default:
+                    iconWording = "ZZZ";
+                    iconId = android.R.drawable.ic_media_play;
+                    break;
+            }
+
+            Intent startActivityIntent = new Intent(getApplicationContext(), MainActivity.class)
+                    .putExtra("artistQueryString", mArtistQueryString)
+                    .putExtra("artist", mSelectedArtist)
+                    .putExtra("track", tracks.get(mCurrentTrackPosition));
+            PendingIntent pendingStartActivityIntent = PendingIntent.getActivity(getApplicationContext(), 101, startActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Notification.Builder mPublicBuilder = null;
+            Notification.Builder mPrivateBuilder = null;
+
+//            if ( prefShowonLockScreen ) {
+
+                mPublicBuilder =
+                        new Notification.Builder(getApplicationContext())
+                                .setSmallIcon(R.drawable.no_album)
+                                .setLargeIcon(bitmap)
+                                .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
+                                .setContentText(mSelectedArtist.name)
+                                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                                .setContentTitle(tracks.get(mCurrentTrackPosition).trackName)
+                                .setStyle(new Notification.MediaStyle())
+                                .setContentIntent(pendingStartActivityIntent);
+
+                Notification publicNotification = mPublicBuilder.build();
+
+                mPrivateBuilder =
+                        new Notification.Builder(getApplicationContext())
+                                .setSmallIcon(R.drawable.no_album)
+                                .setLargeIcon(bitmap)
+                                .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
+                                .setContentText(mSelectedArtist.name)
+                                .setVisibility(visibilityLevel)
+                                .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
+                                .addAction(iconId, iconWording, piPlayPauseIntent)
+                                .addAction(android.R.drawable.ic_media_next, "next", piNextIntent)
+                                .setStyle(new Notification.MediaStyle()
+                                        .setShowActionsInCompactView(0, 1, 2))
+                                .setContentIntent(pendingStartActivityIntent)
+                                .setPublicVersion(publicNotification);
+
+//            } else {
+//
+//                mPublicBuilder =
+//                        new Notification.Builder(getApplicationContext())
+//                                .setSmallIcon(R.drawable.no_album)
+//                                .setLargeIcon(bitmap)
+//                                .setContentTitle("Now Playing")
+//                                .setContentText(tracks.get(mCurrentTrackPosition).trackName)
+//                                .setVisibility(Notification.VISIBILITY_PUBLIC)
+//                                .setStyle(new Notification.MediaStyle())
+//                                .setContentIntent(pendingStartActivityIntent);
+//            }
+
+            Notification n = mPrivateBuilder.build();
+
+            startForeground(888, n);
+
+        }
     }
 }

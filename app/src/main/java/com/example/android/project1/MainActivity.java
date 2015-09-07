@@ -20,10 +20,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v7.widget.ShareActionProvider;
-import android.widget.Toast;
 
 import com.example.android.project1.models.LocalArtist;
 import com.example.android.project1.models.LocalTrack;
@@ -249,9 +248,6 @@ public class MainActivity extends ActionBarActivity
                     LocalArtist artist = (LocalArtist) intent.getParcelableExtra("artist");
                     LocalTrack track = (LocalTrack) intent.getParcelableExtra("track");
 
-                    Toast.makeText(this, "Started by notification (artist = " + artist.name + ", query = " + artistQueryString + ")", Toast.LENGTH_SHORT)
-                            .show();
-
                     MainActivityFragment mainActivityFragment;
                     mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
                     mainActivityFragment.setValues(artistQueryString, artist.id);
@@ -351,7 +347,11 @@ public class MainActivity extends ActionBarActivity
 
         outState.putString("artistQueryString", mArtistQueryString);
         outState.putParcelable("mSelectedArtist", mSelectedArtist);
-        outState.putBoolean("showNowPlayingActionBarButton", mIsPlayingMenuItem.isVisible());
+        if ( mIsPlayingMenuItem != null ) {
+            outState.putBoolean("showNowPlayingActionBarButton", mIsPlayingMenuItem.isVisible());
+        } else {
+            outState.putBoolean("showNowPlayingActionBarButton", false);
+        }
 
    }
 
