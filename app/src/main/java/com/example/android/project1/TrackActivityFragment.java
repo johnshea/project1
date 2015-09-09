@@ -1,7 +1,6 @@
 package com.example.android.project1;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,15 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.project1.models.LocalImage;
 import com.example.android.project1.models.LocalTrack;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -200,61 +195,6 @@ public class TrackActivityFragment extends Fragment {
             intCurrentTrack--;
         }
         return tracksArrayList.get(intCurrentTrack);
-    }
-
-    static class ViewHolder {
-        TextView textViewAlbumName;
-        TextView textViewTrackName;
-        ImageView imageViewAlbumImage;
-    }
-
-    public class TracksAdapter extends ArrayAdapter<LocalTrack> {
-
-        public TracksAdapter(Context context, ArrayList<LocalTrack> tracks) {
-            super(context, 0, tracks);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            LocalTrack localTrack = getItem(position);
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_track, parent, false);
-
-                ViewHolder viewHolder = new ViewHolder();
-                viewHolder.textViewAlbumName = (TextView) convertView.findViewById(R.id.textView_albumName);
-                viewHolder.textViewTrackName = (TextView) convertView.findViewById(R.id.textView_trackName);
-                viewHolder.imageViewAlbumImage = (ImageView) convertView.findViewById(R.id.imageView_albumImage);
-
-                convertView.setTag(viewHolder);
-            }
-
-            ViewHolder viewHolder = (ViewHolder) convertView.getTag();
-
-            TextView tvAlbumName = viewHolder.textViewAlbumName;
-            TextView tvTrackName = viewHolder.textViewTrackName;
-            ImageView ivAlbumImage = viewHolder.imageViewAlbumImage;
-
-            tvAlbumName.setText(localTrack.getAlbumName());
-            tvTrackName.setText(localTrack.getTrackName());
-
-            if ( localTrack.getAlbumImages().size() > 0 ) {
-                Picasso.with(getContext()).load(localTrack.getThumbnailUrl())
-                        .resize(200, 200)
-                        .centerInside()
-                        .placeholder(R.drawable.icon_square)
-                        .into(ivAlbumImage);
-
-            } else {
-                Picasso.with(getContext()).load(R.drawable.no_album)
-                        .resize(200, 200)
-                        .centerInside()
-                        .into(ivAlbumImage);
-            }
-
-            return convertView;
-        }
-
     }
 
     private static class DownloadTracksParam {
