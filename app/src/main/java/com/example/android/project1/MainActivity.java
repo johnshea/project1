@@ -240,35 +240,30 @@ public class MainActivity extends ActionBarActivity
 
             intent = getIntent();
 
-            if (mDualPane) {
+            if (intent != null & intent.hasExtra("artist") & savedInstanceState == null) {
 
-                if (intent != null & intent.hasExtra("artist") & savedInstanceState == null) {
+                String artistQueryString = intent.getStringExtra("artistQueryString");
+                LocalArtist artist = (LocalArtist) intent.getParcelableExtra("artist");
+                LocalTrack track = (LocalTrack) intent.getParcelableExtra("track");
 
-                    String artistQueryString = intent.getStringExtra("artistQueryString");
-                    LocalArtist artist = (LocalArtist) intent.getParcelableExtra("artist");
-                    LocalTrack track = (LocalTrack) intent.getParcelableExtra("track");
+                MainActivityFragment mainActivityFragment;
+                mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+                mainActivityFragment.setValues(artistQueryString, artist.getId());
 
-                    MainActivityFragment mainActivityFragment;
-                    mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-                    mainActivityFragment.setValues(artistQueryString, artist.getId());
+                onArtistSelected(artistQueryString, artist);
 
-                    onArtistSelected(artistQueryString, artist);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
 
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
+                // TODO fix this - unneeded parameters(?)
+                ArrayList<LocalTrack> tracks = new ArrayList<>();
+                tracks.add(track);
+                trackPlayerActivityFragment.setValues(mArtistName, tracks, 0);
 
-                    // TODO fix this - unneeded parameters(?)
-                    ArrayList<LocalTrack> tracks = new ArrayList<>();
-                    tracks.add(track);
-                    trackPlayerActivityFragment.setValues(mArtistName, tracks, 0);
-
-                    trackPlayerActivityFragment.show(fragmentManager, "dialog");
-
-//                trackPlayerActivityFragment.requestUiUpdate();
-
-                }
+                trackPlayerActivityFragment.show(fragmentManager, "dialog");
 
             }
+
         }
     }
 
