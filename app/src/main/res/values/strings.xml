@@ -15,4 +15,9 @@
     <string name="share_subject">Check out this track!</string>
     <string name="share_message">I am listening to \"%1$s\" by %2$s. (%3$s)</string>
     <string name="share_message_temp">I am using my Spotify Streamer 2 app.</string>
+    <string name="message_load_track_please_be_patient">Currently loading a track.  Please be patient.</string>
+    <string name="message_mediaPlayer_onError">There was an unrecoverable error in the MediaPlayer.  Please check for network connectivty and restart the app.</string>
+    <string name="message_problem_top_10_tracks">There was a problem retrieving the artist\'s Top 10 Tracks.  Check your network connection and try again.</string>
+    <string name="message_problem_artist">There was a problem searching for the artists.  Check your network connection and try again.</string>
+    <string name="message_check_for_network_connectivity">Check for network connectivity and try again.</string>
 </resources>

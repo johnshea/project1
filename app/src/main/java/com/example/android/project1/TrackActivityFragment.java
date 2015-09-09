@@ -45,7 +45,6 @@ public class TrackActivityFragment extends Fragment {
 
     private ListView tracksListView;
     private ArrayList<LocalTrack> tracksArrayList;
-//    private ArrayAdapter<Tracks> tracksAdapter;
 
     private String id;
     private String artist;
@@ -293,6 +292,11 @@ public class TrackActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Tracks results) {
+
+            if ( results == null ) {
+                Toast.makeText(getActivity(), getString(R.string.message_problem_top_10_tracks), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             tracksArrayList = new ArrayList<LocalTrack>();
 

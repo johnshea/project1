@@ -3,11 +3,14 @@ package com.example.android.project1.service;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
@@ -15,9 +18,11 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.android.project1.Constants;
 import com.example.android.project1.MainActivity;
+import com.example.android.project1.R;
 import com.example.android.project1.models.LocalArtist;
 import com.example.android.project1.models.LocalTrack;
 import com.squareup.picasso.Picasso;
@@ -51,6 +56,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     boolean mIsPaused;
     private boolean mJustLoadTrack = false;
     private boolean mCompletedPlaying = false;
+    private boolean mIsPreparingMediaPlayer = false;
 
     public class LocalBinder extends Binder {
         public TrackPlayerService getService() {
@@ -105,23 +111,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
 
-    }
-
-    public void playSong(String url) {
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        try {
-//            mMediaPlayer.setDataSource(url);
-            mMediaPlayer.setDataSource(tracks.get(mCurrentTrackPosition).getPreview_url());
-            mMediaPlayer.setOnPreparedListener(this);
-            mMediaPlayer.setOnCompletionListener(this);
-            mMediaPlayer.prepareAsync();
-        }
-        catch (IOException e) {
-            Log.e(LOG_TAG, "Unable to playSong");
-        }
-
+        mIsPreparingMediaPlayer = false;
     }
 
     public void requestUiUpdate() {
@@ -137,26 +127,41 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
             int temporaryCurrentPosition;
 
-            // There is a known mediaPlayer bug where the currentPosition returned
-            // is not accurate.  This is a temporary workaround for when the track
-            // finishes playing.
-            if ( mCompletedPlaying ) {
-                temporaryCurrentPosition = mMediaPlayer.getDuration();
-            } else {
-                temporaryCurrentPosition = mMediaPlayer.getCurrentPosition();
+            if ( !mIsPreparingMediaPlayer ) {
+                // There is a known mediaPlayer bug where the currentPosition returned
+                // is not accurate.  This is a temporary workaround for when the track
+                // finishes playing.
+                if ( mCompletedPlaying ) {
+                    temporaryCurrentPosition = mMediaPlayer.getDuration();
+                } else {
+                    temporaryCurrentPosition = mMediaPlayer.getCurrentPosition();
+                }
+
+                localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
+                        .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mMediaPlayer.isPlaying())
+                        .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mMediaPlayer.getDuration())
+                        .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, temporaryCurrentPosition)
+                        .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
+                        .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.getName());;
+
+                LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+
             }
-
-            localIntent = new Intent(Constants.BROADCAST_ACTION_TRACK_UPDATE)
-                    .putExtra(Constants.EXTENDED_DATA_TRACK_IS_PLAYING, mMediaPlayer.isPlaying())
-                    .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mMediaPlayer.getDuration())
-                    .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, temporaryCurrentPosition)
-                    .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
-                    .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.getName());;
-
-            LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
         }
 
+    }
+
+    private boolean isNetworkConnected() {
+        // Check for network connectivity
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        return isConnected;
     }
 
     public void previousTrack() {
@@ -170,9 +175,17 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         if ( !isTrackLoaded() ) {
             loadTrack(tracks.get(mCurrentTrackPosition).getPreview_url());
 
-            mJustLoadTrack = true;
-            mMediaPlayer.prepareAsync();
-
+//            mJustLoadTrack = true;
+            if ( !mIsPreparingMediaPlayer ) {
+                if ( isNetworkConnected() ) {
+                    mIsPreparingMediaPlayer = true;
+                    mMediaPlayer.prepareAsync();
+                } else {
+                    Toast.makeText(this, getString(R.string.message_check_for_network_connectivity), Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, getString(R.string.message_load_track_please_be_patient), Toast.LENGTH_SHORT).show();
+            };
 
         }
 
@@ -197,8 +210,17 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         if ( !isTrackLoaded() ) {
             loadTrack(tracks.get(mCurrentTrackPosition).getPreview_url());
 
-            mJustLoadTrack = true;
-            mMediaPlayer.prepareAsync();
+//            mJustLoadTrack = true;
+            if ( !mIsPreparingMediaPlayer ) {
+                if ( isNetworkConnected() ) {
+                    mIsPreparingMediaPlayer = true;
+                    mMediaPlayer.prepareAsync();
+                } else {
+                    Toast.makeText(this, getString(R.string.message_check_for_network_connectivity), Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, getString(R.string.message_load_track_please_be_patient), Toast.LENGTH_SHORT).show();
+            };
 
         }
 
@@ -299,7 +321,17 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
         if ( mIsTrackLoaded && !mIsMediaPlayerPrepared && !mJustLoadTrack) {
-            mMediaPlayer.prepareAsync();
+            if ( !mIsPreparingMediaPlayer ) {
+                if ( isNetworkConnected() ) {
+                    mIsPreparingMediaPlayer = true;
+                    mMediaPlayer.prepareAsync();
+                } else {
+                    Toast.makeText(this, getString(R.string.message_check_for_network_connectivity), Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, getString(R.string.message_load_track_please_be_patient), Toast.LENGTH_SHORT).show();
+                return;
+            };
         }
 
         if ( mIsMediaPlayerPrepared && mIsTrackPlaying && !mIsPaused ) {
@@ -369,7 +401,6 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         }
 
-//        return super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
 
@@ -382,6 +413,14 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnCompletionListener(this);
+        mMediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                Log.e(LOG_TAG, "onError called in mediaPlayer");
+                Toast.makeText(getApplicationContext(), getString(R.string.message_mediaPlayer_onError), Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
 
         mIsTrackLoaded = false;
         mIsTrackPlaying = false;

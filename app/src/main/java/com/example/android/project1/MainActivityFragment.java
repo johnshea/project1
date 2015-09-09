@@ -96,7 +96,6 @@ public class MainActivityFragment extends Fragment {
         artistsArrayList = new ArrayList<LocalArtist>();
 
         if ( savedInstanceState != null ) {
-//            artistsArrayList = savedInstanceState.getParcelableArrayList("artistsArrayList");
             artistsArrayList = savedInstanceState.getParcelableArrayList("artistsArrayList");
             mPosition = savedInstanceState.getInt("position", -1);
 
@@ -200,6 +199,11 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArtistsPager results) {
+
+            if ( results == null ) {
+                Toast.makeText(getActivity(), getString(R.string.message_problem_artist), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             artistsArrayList = new ArrayList<LocalArtist>();
 
