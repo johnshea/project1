@@ -113,7 +113,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
 
         try {
 //            mMediaPlayer.setDataSource(url);
-            mMediaPlayer.setDataSource(tracks.get(mCurrentTrackPosition).preview_url);
+            mMediaPlayer.setDataSource(tracks.get(mCurrentTrackPosition).getPreview_url());
             mMediaPlayer.setOnPreparedListener(this);
             mMediaPlayer.setOnCompletionListener(this);
             mMediaPlayer.prepareAsync();
@@ -131,7 +131,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
             Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                     .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
                     .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT, mCurrentTrackPosition)
-                    .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
+                    .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.getName());
 
             LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
@@ -151,7 +151,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
                     .putExtra(Constants.EXTENDED_DATA_TRACK_DURATION, mMediaPlayer.getDuration())
                     .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT_POSITION, temporaryCurrentPosition)
                     .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
-                    .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);;
+                    .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.getName());;
 
             LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
 
@@ -168,7 +168,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
         if ( !isTrackLoaded() ) {
-            loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
+            loadTrack(tracks.get(mCurrentTrackPosition).getPreview_url());
 
             mJustLoadTrack = true;
             mMediaPlayer.prepareAsync();
@@ -181,7 +181,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
                 .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT, mCurrentTrackPosition)
-                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
+                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.getName());
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
@@ -195,7 +195,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         }
 
         if ( !isTrackLoaded() ) {
-            loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
+            loadTrack(tracks.get(mCurrentTrackPosition).getPreview_url());
 
             mJustLoadTrack = true;
             mMediaPlayer.prepareAsync();
@@ -207,7 +207,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
                 .putExtra(Constants.EXTENDED_DATA_STATUS, tracks.get(mCurrentTrackPosition))
                 .putExtra(Constants.EXTENDED_DATA_TRACK_CURRENT, mCurrentTrackPosition)
-                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.name);
+                .putExtra(Constants.EXTENDED_DATA_STATUS_ARTIST_NAME, mSelectedArtist.getName());
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
@@ -295,7 +295,7 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
     public void playPauseTrack() {
 
         if ( !isTrackLoaded() ) {
-            loadTrack(tracks.get(mCurrentTrackPosition).preview_url);
+            loadTrack(tracks.get(mCurrentTrackPosition).getPreview_url());
         }
 
         if ( mIsTrackLoaded && !mIsMediaPlayerPrepared && !mJustLoadTrack) {
@@ -489,10 +489,10 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
                     new Notification.Builder(getApplicationContext())
                             .setSmallIcon(android.R.drawable.ic_media_play)
                             .setLargeIcon(bitmap)
-                            .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
-                            .setContentText(mSelectedArtist.name)
+                            .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).getTrackName() + "\"")
+                            .setContentText(mSelectedArtist.getName())
                             .setVisibility(Notification.VISIBILITY_PUBLIC)
-                            .setContentTitle(tracks.get(mCurrentTrackPosition).trackName)
+                            .setContentTitle(tracks.get(mCurrentTrackPosition).getTrackName())
                             .setStyle(new Notification.MediaStyle())
                             .setContentIntent(pendingStartActivityIntent);
 
@@ -502,8 +502,8 @@ public class TrackPlayerService extends Service implements MediaPlayer.OnPrepare
                     new Notification.Builder(getApplicationContext())
                             .setSmallIcon(android.R.drawable.ic_media_play)
                             .setLargeIcon(bitmap)
-                            .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).trackName + "\"")
-                            .setContentText(mSelectedArtist.name)
+                            .setContentTitle("\"" + tracks.get(mCurrentTrackPosition).getTrackName() + "\"")
+                            .setContentText(mSelectedArtist.getName())
                             .setVisibility(visibilityLevel)
                             .addAction(android.R.drawable.ic_media_previous, "prev", piPrevIntent)
                             .addAction(iconId, iconWording, piPlayPauseIntent)

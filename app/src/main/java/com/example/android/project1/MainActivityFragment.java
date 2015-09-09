@@ -223,7 +223,7 @@ public class MainActivityFragment extends Fragment {
 
             for(int i = 0; i < artistsArrayList.size(); i++) {
                 LocalArtist artist = artistsArrayList.get(i);
-                if ( artist.id.equals(mArtistId) ) {
+                if ( artist.getId().equals(mArtistId) ) {
                     position = i;
                     break;
                 }
@@ -289,9 +289,9 @@ public class MainActivityFragment extends Fragment {
             ImageView ivArtistImage = viewHolder.imageViewArtistImage;
             ArtistLinearLayout artistLinearLayout = viewHolder.artistLinearLayout;
 
-            tvArtistName.setText(artist.name);
+            tvArtistName.setText(artist.getName());
 
-            if ( artist.artistImages.size() > 0 ) {
+            if ( artist.getArtistImages().size() > 0 ) {
 //                Picasso.with(getContext()).setIndicatorsEnabled(true);
                 Picasso.with(getContext()).load(artist.getThumbnailUrl())
                         .resize(200, 200)

@@ -9,10 +9,10 @@ import java.util.ArrayList;
  * Created by John on 7/3/2015.
  */
 public class LocalTrack implements Parcelable {
-    public String albumName;
-    public String trackName;
-    public ArrayList<LocalImage> albumImages;
-    public String preview_url;
+    private String albumName;
+    private String trackName;
+    private ArrayList<LocalImage> albumImages;
+    private String preview_url;
 
     private Integer smallestImageIndex;
     private Integer largestImageIndex;
@@ -24,19 +24,19 @@ public class LocalTrack implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(albumName);
-        dest.writeString(trackName);
-        dest.writeTypedList(albumImages);
-        dest.writeString(preview_url);
+        dest.writeString(getAlbumName());
+        dest.writeString(getTrackName());
+        dest.writeTypedList(getAlbumImages());
+        dest.writeString(getPreview_url());
         dest.writeInt(smallestImageIndex);
         dest.writeInt(largestImageIndex);
     }
 
     private LocalTrack(Parcel in) {
-        albumName = in.readString();
-        trackName = in.readString();
-        albumImages = in.createTypedArrayList(LocalImage.CREATOR);
-        preview_url = in.readString();
+        setAlbumName(in.readString());
+        setTrackName(in.readString());
+        setAlbumImages(in.createTypedArrayList(LocalImage.CREATOR));
+        setPreview_url(in.readString());
         smallestImageIndex = in.readInt();
         largestImageIndex = in.readInt();
     }
@@ -59,10 +59,10 @@ public class LocalTrack implements Parcelable {
     }
 
     public LocalTrack(String albumName, String trackName, ArrayList<LocalImage> albumImages, String preview_url) {
-        this.albumName = albumName;
-        this.trackName = trackName;
-        this.albumImages = albumImages;
-        this.preview_url = preview_url;
+        this.setAlbumName(albumName);
+        this.setTrackName(trackName);
+        this.setAlbumImages(albumImages);
+        this.setPreview_url(preview_url);
 
         calculateSmallestAndLargestImage();
     }
@@ -75,28 +75,28 @@ public class LocalTrack implements Parcelable {
         Integer currentLargestIndex;
         Integer currentLargestWidth;
 
-        if ( this.albumImages.size() > 0 ) {
+        if ( this.getAlbumImages().size() > 0 ) {
 
             currentSmallestIndex = 0;
-            currentSmallestWidth = this.albumImages.get(0).width;
+            currentSmallestWidth = this.getAlbumImages().get(0).getWidth();
 
             currentLargestIndex = 0;
-            currentLargestWidth = this.albumImages.get(0).width;
+            currentLargestWidth = this.getAlbumImages().get(0).getWidth();
 
-            for(int i = 0; i < this.albumImages.size(); i++) {
+            for(int i = 0; i < this.getAlbumImages().size(); i++) {
 
-                LocalImage currentImage = this.albumImages.get(i);
+                LocalImage currentImage = this.getAlbumImages().get(i);
 
                 // Determine smallest image
-                if ( currentImage.width < currentSmallestWidth ) {
+                if ( currentImage.getWidth() < currentSmallestWidth ) {
                     currentSmallestIndex = i;
-                    currentSmallestWidth = this.albumImages.get(i).width;
+                    currentSmallestWidth = this.getAlbumImages().get(i).getWidth();
                 }
 
                 // Determine largest image
-                if ( currentImage.width > currentLargestWidth ) {
+                if ( currentImage.getWidth() > currentLargestWidth ) {
                     currentLargestIndex = i;
-                    currentLargestWidth = this.albumImages.get(i).width;
+                    currentLargestWidth = this.getAlbumImages().get(i).getWidth();
                 }
             }
 
@@ -108,11 +108,42 @@ public class LocalTrack implements Parcelable {
     }
 
     public String getThumbnailUrl() {
-        return this.albumImages.get(smallestImageIndex).url;
+        return this.getAlbumImages().get(smallestImageIndex).getUrl();
     }
 
     public String getLargestImageUrl() {
-        return this.albumImages.get(largestImageIndex).url;
+        return this.getAlbumImages().get(largestImageIndex).getUrl();
     }
 
+    public String getAlbumName() {
+        return albumName;
+    }
+
+    public void setAlbumName(String albumName) {
+        this.albumName = albumName;
+    }
+
+    public String getTrackName() {
+        return trackName;
+    }
+
+    public void setTrackName(String trackName) {
+        this.trackName = trackName;
+    }
+
+    public ArrayList<LocalImage> getAlbumImages() {
+        return albumImages;
+    }
+
+    public void setAlbumImages(ArrayList<LocalImage> albumImages) {
+        this.albumImages = albumImages;
+    }
+
+    public String getPreview_url() {
+        return preview_url;
+    }
+
+    public void setPreview_url(String preview_url) {
+        this.preview_url = preview_url;
+    }
 }

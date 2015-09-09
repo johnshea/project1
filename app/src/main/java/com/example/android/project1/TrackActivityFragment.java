@@ -236,10 +236,10 @@ public class TrackActivityFragment extends Fragment {
             TextView tvTrackName = viewHolder.textViewTrackName;
             ImageView ivAlbumImage = viewHolder.imageViewAlbumImage;
 
-            tvAlbumName.setText(localTrack.albumName);
-            tvTrackName.setText(localTrack.trackName);
+            tvAlbumName.setText(localTrack.getAlbumName());
+            tvTrackName.setText(localTrack.getTrackName());
 
-            if ( localTrack.albumImages.size() > 0 ) {
+            if ( localTrack.getAlbumImages().size() > 0 ) {
                 Picasso.with(getContext()).load(localTrack.getThumbnailUrl())
                         .resize(200, 200)
                         .centerInside()

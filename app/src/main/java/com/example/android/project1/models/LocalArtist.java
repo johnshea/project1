@@ -9,11 +9,10 @@ import java.util.ArrayList;
  * Created by John on 7/3/2015.
  */
 public class LocalArtist implements Parcelable {
-    // TODO Make these private and user getters/setters
-    public String id;
-    public String name;
-    public String url;
-    public ArrayList<LocalImage> artistImages;
+    private String id;
+    private String name;
+    private String url;
+    private ArrayList<LocalImage> artistImages;
     private Integer smallestImageIndex;
     private Integer largestImageIndex;
 
@@ -24,19 +23,19 @@ public class LocalArtist implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(name);
-        dest.writeString(url);
-        dest.writeTypedList(artistImages);
+        dest.writeString(getId());
+        dest.writeString(getName());
+        dest.writeString(getUrl());
+        dest.writeTypedList(getArtistImages());
         dest.writeInt(smallestImageIndex);
         dest.writeInt(largestImageIndex);
     }
 
     private LocalArtist(Parcel in) {
-        id = in.readString();
-        name = in.readString();
-        url = in.readString();
-        artistImages = in.createTypedArrayList(LocalImage.CREATOR);
+        setId(in.readString());
+        setName(in.readString());
+        setUrl(in.readString());
+        setArtistImages(in.createTypedArrayList(LocalImage.CREATOR));
         //in.readTypedList(artistImages, LocalImage.CREATOR);
         smallestImageIndex = in.readInt();
         largestImageIndex = in.readInt();
@@ -57,9 +56,9 @@ public class LocalArtist implements Parcelable {
             };
 
     public LocalArtist(String id, String name, ArrayList<LocalImage> artistImages) {
-        this.id = id;
-        this.name = name;
-        this.artistImages = artistImages;
+        this.setId(id);
+        this.setName(name);
+        this.setArtistImages(artistImages);
 
         smallestImageIndex = 0;
         largestImageIndex = 0;
@@ -76,28 +75,28 @@ public class LocalArtist implements Parcelable {
         Integer currentLargestIndex;
         Integer currentLargestWidth;
 
-        if ( this.artistImages.size() > 0 ) {
+        if ( this.getArtistImages().size() > 0 ) {
 
             currentSmallestIndex = 0;
-            currentSmallestWidth = this.artistImages.get(0).width;
+            currentSmallestWidth = this.getArtistImages().get(0).getWidth();
 
             currentLargestIndex = 0;
-            currentLargestWidth = this.artistImages.get(0).width;
+            currentLargestWidth = this.getArtistImages().get(0).getWidth();
 
-            for(int i = 0; i < this.artistImages.size(); i++) {
+            for(int i = 0; i < this.getArtistImages().size(); i++) {
 
-                LocalImage currentImage = this.artistImages.get(i);
+                LocalImage currentImage = this.getArtistImages().get(i);
 
                 // Determine smallest image
-                if ( currentImage.width < currentSmallestWidth ) {
+                if ( currentImage.getWidth() < currentSmallestWidth ) {
                     currentSmallestIndex = i;
-                    currentSmallestWidth = this.artistImages.get(i).width;
+                    currentSmallestWidth = this.getArtistImages().get(i).getWidth();
                 }
 
                 // Determine largest image
-                if ( currentImage.width > currentLargestWidth ) {
+                if ( currentImage.getWidth() > currentLargestWidth ) {
                     currentLargestIndex = i;
-                    currentLargestWidth = this.artistImages.get(i).width;
+                    currentLargestWidth = this.getArtistImages().get(i).getWidth();
                 }
             }
 
@@ -108,19 +107,50 @@ public class LocalArtist implements Parcelable {
     }
 
     public String getThumbnailUrl() {
-        return this.artistImages.get(smallestImageIndex).url;
+        return this.getArtistImages().get(smallestImageIndex).getUrl();
     }
 
     public String getLargestImageUrl() {
         String url = "";
 
-        if (artistImages.size() == 0) {
+        if (getArtistImages().size() == 0) {
             url = "";
         } else {
-            url =  this.artistImages.get(largestImageIndex).url;
+            url = this.getArtistImages().get(largestImageIndex).getUrl();
         }
 
         return url;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public ArrayList<LocalImage> getArtistImages() {
+        return artistImages;
+    }
+
+    public void setArtistImages(ArrayList<LocalImage> artistImages) {
+        this.artistImages = artistImages;
+    }
 }

@@ -123,7 +123,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    actionBar.setSubtitle(mSelectedArtist.name);
+                    actionBar.setSubtitle(mSelectedArtist.getName());
                 }
             });
         }
@@ -143,7 +143,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
         TrackPlayerActivityFragment trackPlayerActivityFragment = new TrackPlayerActivityFragment();
 
 //        trackPlayerActivityFragment.setValues(mArtistName, localTrack);
-        trackPlayerActivityFragment.setValues(mSelectedArtist.name, tracks, position);
+        trackPlayerActivityFragment.setValues(mSelectedArtist.getName(), tracks, position);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -200,7 +200,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            actionBar.setSubtitle(mSelectedArtist.name);
+                            actionBar.setSubtitle(mSelectedArtist.getName());
                         }
                     });
                 }
@@ -265,12 +265,12 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
             mArtistQueryString = intent.getStringExtra("artistQueryString");
             mShowNowPlayingButton = intent.getBooleanExtra("showButton", false);
 
-            if ( mSelectedArtist.id != null && mSelectedArtist.name != null ) {
+            if ( mSelectedArtist.getId() != null && mSelectedArtist.getName() != null ) {
 
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
                 String prefCountryCode = sharedPref.getString("pref_country_code", "US");
 
-                tracksActivityFragment.setValues(mSelectedArtist.id, mSelectedArtist.name, prefCountryCode);
+                tracksActivityFragment.setValues(mSelectedArtist.getId(), mSelectedArtist.getName(), prefCountryCode);
                 TrackFrameLayout trackFrameLayout = (TrackFrameLayout)findViewById(R.id.track_list_container);
 
                 if ( !imageUrl.equals("") ) {
@@ -337,7 +337,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                 ArrayList<LocalTrack> tracks = new ArrayList<>();
                 tracks.add(track);
 
-                trackPlayerActivityFragment.setValues(mSelectedArtist.name, tracks, 0);
+                trackPlayerActivityFragment.setValues(mSelectedArtist.getName(), tracks, 0);
 
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
@@ -443,7 +443,7 @@ public class TrackActivity extends ActionBarActivity implements TrackActivityFra
                     shareIntent.setAction(Intent.ACTION_SEND);
                     shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
 
-                    String shareMessage = String.format(getString(R.string.share_message), localTrack.trackName, artistName, localTrack.preview_url);
+                    String shareMessage = String.format(getString(R.string.share_message), localTrack.getTrackName(), artistName, localTrack.getPreview_url());
                     shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
 
                     shareIntent.setType("text/plain");

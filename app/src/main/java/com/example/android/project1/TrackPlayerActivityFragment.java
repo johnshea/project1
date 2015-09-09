@@ -208,12 +208,12 @@ SeekBar.OnSeekBarChangeListener {
         trackPlayerArtistName.setText(artistName);
 
         if ( localTrack != null ) {
-            if (localTrack.albumName != null) {
-                trackPlayerAlbumName.setText(localTrack.albumName);
+            if (localTrack.getAlbumName() != null) {
+                trackPlayerAlbumName.setText(localTrack.getAlbumName());
             }
 
-            if (localTrack.trackName != null) {
-                trackPlayerTrackName.setText(localTrack.trackName);
+            if (localTrack.getTrackName() != null) {
+                trackPlayerTrackName.setText(localTrack.getTrackName());
             }
 
             if ( localTrack.getLargestImageUrl() != null ) {

@@ -7,14 +7,14 @@ import android.os.Parcelable;
  * Created by John on 7/3/2015.
  */
 public class LocalImage implements Parcelable {
-    public String url;
-    public Integer height;
-    public Integer width;
+    private String url;
+    private Integer height;
+    private Integer width;
 
     public LocalImage(String url, Integer width, Integer height) {
-        this.url = url;
-        this.width = width;
-        this.height = height;
+        this.setUrl(url);
+        this.setWidth(width);
+        this.setHeight(height);
     }
 
     @Override
@@ -24,15 +24,15 @@ public class LocalImage implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(url);
-        dest.writeInt(width);
-        dest.writeInt(height);
+        dest.writeString(getUrl());
+        dest.writeInt(getWidth());
+        dest.writeInt(getHeight());
     }
 
     private LocalImage(Parcel in) {
-        url = in.readString();
-        width = in.readInt();
-        height = in.readInt();
+        setUrl(in.readString());
+        setWidth(in.readInt());
+        setHeight(in.readInt());
     }
 
     public static final Parcelable.Creator<LocalImage> CREATOR =
@@ -47,4 +47,28 @@ public class LocalImage implements Parcelable {
                     return new LocalImage[size];
                 }
             };
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Integer getHeight() {
+        return height;
+    }
+
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+    public Integer getWidth() {
+        return width;
+    }
+
+    public void setWidth(Integer width) {
+        this.width = width;
+    }
 }

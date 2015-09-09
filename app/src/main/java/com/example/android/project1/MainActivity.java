@@ -108,7 +108,7 @@ public class MainActivity extends ActionBarActivity
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    actionBar.setSubtitle(mSelectedArtist.name);
+                    actionBar.setSubtitle(mSelectedArtist.getName());
                 }
             });
         }
@@ -183,7 +183,7 @@ public class MainActivity extends ActionBarActivity
             trackPlayerActivityFragment = new TrackPlayerActivityFragment();
         }
 
-        trackPlayerActivityFragment.setValues(mSelectedArtist.name, tracks, position);
+        trackPlayerActivityFragment.setValues(mSelectedArtist.getName(), tracks, position);
 
         if( mDualPane ) {
             trackPlayerActivityFragment.show(fragmentManager, "dialog");
@@ -250,7 +250,7 @@ public class MainActivity extends ActionBarActivity
 
                     MainActivityFragment mainActivityFragment;
                     mainActivityFragment = (MainActivityFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
-                    mainActivityFragment.setValues(artistQueryString, artist.id);
+                    mainActivityFragment.setValues(artistQueryString, artist.getId());
 
                     onArtistSelected(artistQueryString, artist);
 
@@ -281,7 +281,7 @@ public class MainActivity extends ActionBarActivity
 
             ActionBar actionBar = this.getSupportActionBar();
             if ( actionBar != null ) {
-                actionBar.setSubtitle(localArtist.name);
+                actionBar.setSubtitle(localArtist.getName());
             }
 
             TrackActivityFragment tracksActivityFragment;
@@ -300,11 +300,11 @@ public class MainActivity extends ActionBarActivity
             SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
             String prefCountryCode = sharedPref.getString("pref_country_code", "US");
 
-            if ( mSelectedArtist.id != null && mSelectedArtist.name != null ) {
-                tracksActivityFragment.setValues(mSelectedArtist.id, mSelectedArtist.name, prefCountryCode);
+            if ( mSelectedArtist.getId() != null && mSelectedArtist.getName() != null ) {
+                tracksActivityFragment.setValues(mSelectedArtist.getId(), mSelectedArtist.getName(), prefCountryCode);
                 TrackFrameLayout trackFrameLayout = (TrackFrameLayout) findViewById(R.id.track_list_container);
 
-                if (localArtist.artistImages.size() > 0) {
+                if (localArtist.getArtistImages().size() > 0) {
                     String imageUrl = localArtist.getThumbnailUrl();
                     Picasso.with(this).load(imageUrl)
                             .into(trackFrameLayout);
@@ -318,7 +318,7 @@ public class MainActivity extends ActionBarActivity
         } else {
 
             Intent intent = new Intent(this, TrackActivity.class);
-            intent.putExtra("id", mSelectedArtist.id);
+            intent.putExtra("id", mSelectedArtist.getId());
             intent.putExtra("artist", mSelectedArtist);
             // TODO Need to pull this extra (artistQueryString) in phone activity
             intent.putExtra("artistQueryString", mArtistQueryString);
@@ -501,7 +501,7 @@ public class MainActivity extends ActionBarActivity
                     shareIntent.setAction(Intent.ACTION_SEND);
                     shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_subject));
 
-                    String shareMessage = String.format(getString(R.string.share_message), localTrack.trackName, artistName, localTrack.preview_url);
+                    String shareMessage = String.format(getString(R.string.share_message), localTrack.getTrackName(), artistName, localTrack.getPreview_url());
                     shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
 
                     shareIntent.setType("text/plain");
