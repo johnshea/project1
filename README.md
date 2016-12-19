@@ -30,10 +30,10 @@ The interface allows users to search for musical artists, displays the artist's 
 
 ### Screenshots
 
-![screenshot_artist_search.png](images/screenshot_artist_search.png)
-![screenshot_lock_screen.png](images/screenshot_lock_screen.png)
-![screenshot_notification.png](images/screenshot_notification.png)
-![screenshot_playing_track_landscape.png](images/screenshot_playing_track_landscape.png)
-![screenshot_playing_track_portrait.png](images/screenshot_playing_track_portrait.png)
-![screenshot_top_10_tracks.png](images/screenshot_top_10_tracks.png)
-![screenshot_top_10_tracks_playing.png](images/screenshot_top_10_tracks_playing.png)
+<img src="images/screenshot_artist_search.png" alt="screenshot_artist_search.png" width="270" height="480" style="margin: 10px 10px">
+<img src="images/screenshot_top_10_tracks.png" alt="screenshot_top_10_tracks.png" width="270" height="480"style="margin: 10px 10px">
+<img src="images/screenshot_top_10_tracks_playing.png" alt="screenshot_top_10_tracks_playing.png" width="270" height="480"style="margin: 10px 10px">
+<img src="images/screenshot_playing_track_portrait.png" alt="screenshot_playing_track_portrait.png" width="270" height="480"style="margin: 10px 10px">
+<img src="images/screenshot_lock_screen.png" alt="screenshot_lock_screen.png" width="270" height="480"style="margin: 10px 10px">
+<img src="images/screenshot_notification.png" alt="screenshot_notification.png" width="270" height="480"style="margin: 10px 10px">
+<img src="images/screenshot_playing_track_landscape.png" alt="screenshot_playing_track_landscape.png" width="480" height="270"style="margin: 10px 10px">
